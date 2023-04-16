@@ -1,3 +1,5 @@
+export leakage_rate
+
 @inline amount_of_substance(R::Quantity) = bⱼ/nC * (R |> u"cm")^2.28
 """
     leakage_rate(R, PER)

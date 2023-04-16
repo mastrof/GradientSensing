@@ -1,10 +1,10 @@
 using DrWatson
 @quickactivate :GradientSensing
-using JLD2, DelimitedFiles
+using JLD2
 
 function parameterspace_hein()
     # generate 100 log-uniform radii between 0.1 and 100 μm
-    R = exp10.(-1, 2, length=100)u"μm"
+    R = exp10.(range(-1, 2, length=100))u"μm"
     # use phytoplankton leakage rates to set bound values
     L₁ = leakage_rate(R[1], 0.01)
     L₂ = leakage_rate(R[end], 0.1)

@@ -16,7 +16,7 @@ function phycosphere_hein()
     
     produce_or_load(
         datadir("Hein"), params;
-        prefix="HeinRadius", suffix="jld2",
+        prefix="phycosphere", suffix="jld2",
         tag = false
     ) do params
         # reassign units to parameters
@@ -25,8 +25,8 @@ function phycosphere_hein()
         U = params["U"]u"μm/s"
         Π = params["Π"]u"1"
         # evaluate phycosphere radius for each (R,L) pair
-        H = map(p -> HeinRadius(p..., C₀, T, U, Π), Iterators.product(R,L))
-        @strdict H
+        S = map(p -> HeinRadius(p..., C₀, T, U, Π), Iterators.product(R,L))
+        @strdict S
     end
 end
 

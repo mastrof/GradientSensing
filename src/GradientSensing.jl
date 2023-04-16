@@ -18,5 +18,6 @@ include("plankton_leakage.jl")
 include("diffusive_field.jl")
 include("sensing.jl")
 include("phycosphere_Hein.jl")
+include("chemotactic_index.jl")
 
 end

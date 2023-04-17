@@ -30,7 +30,7 @@ function sensing(R, L, params)
     for itr in iter
         i,j = itr # R, L
         in_params = @strdict C₀ T U Δt N i j
-        in_params = Dict(keys(params) .=> ustrip.(values(params)))
+        in_params = Dict(keys(in_params) .=> ustrip.(values(in_params)))
         dataset = jldopen(datadir("PoissonSampling", savename("waitingtimes", in_params, "jld2")))
         r = dataset["r"]
         waiting_times = dataset["waiting_times"]

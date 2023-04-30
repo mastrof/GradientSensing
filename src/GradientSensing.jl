@@ -4,6 +4,9 @@ using Reexport
 @reexport using Distributions, LinearAlgebra, Unitful, Statistics, StatsBase, Random
 using HypothesisTests, Roots
 
+# import unitful dimension types for dispatch
+using Unitful: 𝐍, 𝐋, 𝐓
+# set preferred units
 Unitful.preferunits(u"s,μm,pmol"...)
 
 include("global_constants.jl")

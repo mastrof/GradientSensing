@@ -2,15 +2,34 @@ using DrWatson
 @quickactivate :GradientSensing
 using JLD2
 
+"""
+Defines the parameter space for the evaluation of sensing properties via direct
+sampling of Poisson count events.
+
+Returns a range of values for source radii (`R`) and source surface concentration (`Cₛ`),
+spanning multiple orders of magnitude with a coarse spacing.
+The values of `C` are chosen by first evaluating the leakage rates that would be
+associated to a very small cell with low PER, and a large cell with medium-high PER,
+and then evaluating the corresponding surface concentrations assuming
+a background concentration of 1 nM (as defined in `src/global_constants.jl`);
+the other values of `C` are selected by sampling uniformly in log scale between
+the two extreme values thus obtained.
+
+The values of `R` are saved in μm, those of `Cₛ` in μM.
+"""
 function parameterspace_poisson()
-    # generate 20 log-uniform radii between 0.5 and 100 μm
-    R = exp10.(range(log10(0.5), 2, length=20))u"μm"
-    # use phytoplankton leakage rates to set bound values
-    L₁ = leakage_rate(R[1], 0.01) |> u"pmol/s"
-    L₂ = leakage_rate(R[end], 0.01) |> u"pmol/s"
-    # generate 10 log-uniform values between L₁ and L₂
-    L = exp10.(range(log10(ustrip(L₁)), log10(ustrip(L₂)), length=10))u"pmol/s"
-    @save datadir("PoissonSampling", "paramspaceRL.jld2") R L
+    # generate 20 log-uniform radii between 0.1 and 100 μm
+    R = exp10.(range(-1, 2, length=20))u"μm"
+    # get a small and a large value of phytoplankton leakage rates
+    # to set the bounds of the parameter space
+    Lmin = leakage_rate(R[1], 0.01) |> u"pmol/s"
+    Lmax = leakage_rate(R[end], 0.1) |> u"pmol/s"
+    # get equivalent Cmin and Cmax values
+    Cmin = C(R[1], Lmin, C₀)
+    Cmax = C(R[end], Lmax, C₀)
+    # generate 10 log-uniform values between Cmin and Cmax
+    Cₛ = exp10.(range(log10(ustrip(Cmin)), log10(ustrip(Cmax)), length=10))u"μM"
+    @save datadir("PoissonSampling", "paramspaceRC.jld2") R Cₛ
 end
 
 parameterspace_poisson()

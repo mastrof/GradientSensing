@@ -35,4 +35,4 @@ of a spherical diffusive source of radius `R` with surface concentration `Cₛ`:
 
 Returns the result in "μM/μm".
 """
-@inline ∇C(r, R, Cₛ::Quantity{<:Real,𝐍/𝐋^3}) = Cₛ/(4π*Dc*r^2) |> u"μM/μm"
+@inline ∇C(r, R, Cₛ::Quantity{<:Real,𝐍/𝐋^3}) = Cₛ*R/r^2 |> u"μM/μm"

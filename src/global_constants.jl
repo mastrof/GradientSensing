@@ -1,4 +1,4 @@
-export μ, bⱼ, nC, Dc, a
+export μ, bⱼ, nC, Dc, a, C₀
 
 global const μ = 1u"1/d"
 global const bⱼ = 1.67e-4u"mol/cm^(2.28)" 

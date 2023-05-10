@@ -14,14 +14,14 @@ function plot_phycosphere_ks()
         rinclude=[r"phycosphere"]
     )
     for df in eachrow(datasets)
-        # load R and L
-        f = jldopen(datadir("PoissonSampling", "paramspaceRL.jld2"))
-        R, L = f["R"], f["L"]
+        # load R and Cₛ
+        f = jldopen(datadir("PoissonSampling", "paramspaceRC.jld2"))
+        R, Cₛ = f["R"], f["Cₛ"]
         S = df.S
-        
-        heatmap(R, L, log10.(S./R)', scale=:log10)
+
+        heatmap(R, Cₛ, log10.(S./R)', scale=:log10)
         plot!(
-            xlab="R (μm)", ylab="L (pmol/s)", cbartitle="log(S/R)",
+            xlab="R (μm)", ylab="Cₛ (pmol/s)", cbartitle="log(S/R)",
             yticks=exp10.(-9:2:5)
         )
 

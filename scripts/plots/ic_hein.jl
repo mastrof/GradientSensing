@@ -12,13 +12,13 @@ function plot_ic_hein()
     datasets = collect_results(datadir("Hein"), rinclude=[r"IC"])
     for df in eachrow(datasets)
         # load R and L
-        f = jldopen(datadir("Hein", "paramspaceRL.jld2"))
-        R, L = f["R"], f["L"]
+        f = jldopen(datadir("Hein", "paramspaceRC.jld2"))
+        R, Cₛ = f["R"], f["Cₛ"]
         ic = df.ic
         
-        contourf(R, L, log10.(ic)', scale=:log10)
+        contourf(R, Cₛ, log10.(ic)', scale=:log10)
         plot!(
-            xlab="R (μm)", ylab="L (pmol/s)", cbartitle="log(IC)",
+            xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(IC)",
             yticks=exp10.(-10:2:4)
         )
 

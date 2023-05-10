@@ -15,14 +15,14 @@ function plot_ic_ks()
     )
     for df in eachrow(datasets)
         # load R and L
-        f = jldopen(datadir("PoissonSampling", "paramspaceRL.jld2"))
-        R, L = f["R"], f["L"]
+        f = jldopen(datadir("PoissonSampling", "paramspaceRC.jld2"))
+        R, Cₛ = f["R"], f["Cₛ"]
         ic = df.ic
         
-        heatmap(R, L, log10.(ic)', scale=:log10)
+        heatmap(R, Cₛ, log10.(ic)', scale=:log10)
         plot!(
-            xlab="R (μm)", ylab="L (pmol/s)", cbartitle="log(IC)",
-            yticks=exp10.(-9:2:5)
+            xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(IC)",
+            yticks=exp10.(-4:0)
         )
 
         # parse dataset parameters

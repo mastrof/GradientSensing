@@ -2,17 +2,17 @@ using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames
 
-function sensing(R, L, params)
+function sensing(R, Cₛ, params)
     @unpack C₀, T, U, Δt, N = params
-    iter = Iterators.product(eachindex(R), eachindex(L)) |> collect
+    iter = Iterators.product(eachindex(R), eachindex(Cₛ)) |> collect
     concentration = [empty([Float64(C₀)]) for _ in iter]
     gradient = [empty([Float64(C₀/T)]) for _ in iter]
     grids = [range(r,r,length=1) for r in R]
     for itr in iter
-        i,j = itr # R, L
+        i,j = itr # R, Cₛ
         in_params = @strdict C₀ T U Δt N i j
         in_params = Dict(keys(in_params) .=> ustrip.(values(in_params)))
-        dataset = jldopen(datadir("PoissonSampling", savename("waitingtimes", in_params, "jld2")))
+        dataset = jldopen(datadir("Poisson", savename("waitingtimes", in_params, "jld2")))
         r = dataset["r"]
         waiting_times = dataset["waiting_times"]
         concentration[i,j] = zeros(typeof(C₀), length(r))
@@ -34,8 +34,8 @@ function sensing(R, L, params)
 end
 
 function gradient_estimation()
-    f = jldopen(datadir("PoissonSampling", "paramspaceRL.jld2"))
-    R, L = f["R"], f["L"]
+    f = jldopen(datadir("Poisson", "RL.jld2"))
+    R, Cₛ = f["R"], f["Cₛ"]
     # parameters for the sensing process
     C₀ = 1u"nM" # background concentration
     T = 100u"ms" # sensory integration timescale
@@ -46,7 +46,7 @@ function gradient_estimation()
     params = Dict(keys(unit_params) .=> ustrip.(values(unit_params)))
 
     sensing_data = produce_or_load(
-        datadir("PoissonSampling", "LinearRegression"), params;
+        datadir("Poisson", "LinearRegression"), params;
         prefix="sensing", suffix="jld2", tag=false
     ) do params
         grids, concentration, gradient = sensing(R, L, unit_params)

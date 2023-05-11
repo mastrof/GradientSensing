@@ -100,7 +100,7 @@ function sample_waitingtimes(params)
     # remove units for savename
     params_ustrip = Dict(keys(params) .=> ustrip.(values(params)))
     produce_or_load(
-        datadir("PoissonSampling"), params_ustrip;
+        datadir("Poisson"), params_ustrip;
         prefix="waitingtimes", suffix="jld2",
         tag=false
     ) do params_ustrip
@@ -121,7 +121,7 @@ Performs a molecule counting experiment for each `(R,Cₛ)` pair in
 the parameter space. (See `sample_waitingtimes`.)
 """
 function poisson_sampling()
-    f = jldopen(datadir("PoissonSampling", "paramspaceRC.jld2"))
+    f = jldopen(datadir("Poisson", "RC.jld2"))
     R, Cₛ = f["R"], f["Cₛ"]
     # parameters for the sensing process
     T = 100u"ms" # sensory integration timescale

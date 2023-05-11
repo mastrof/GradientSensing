@@ -11,11 +11,10 @@ Plots.default(
 function plot_phycosphere_hein()
     datasets = collect_results(datadir("Hein"), rinclude=[r"phycosphere"])
     for df in eachrow(datasets)
-        # load R and L
-        f = jldopen(datadir("Hein", "paramspaceRC.jld2"))
+        f = jldopen(datadir("Hein", "RC.jld2"))
         R, Cₛ = f["R"], f["Cₛ"]
         S = df.S
-        
+
         contourf(R, Cₛ, log10.(S./R)', scale=:log10)
         plot!(
             xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(S/R)",

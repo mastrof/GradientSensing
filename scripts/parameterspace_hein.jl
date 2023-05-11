@@ -16,24 +16,25 @@ the other values of `C` are selected by sampling uniformly in log scale between
 the two extreme values thus obtained.
 
 The values of `R` are saved in μm, those of `Cₛ` in μM.
-
-The `R` and `C` ranges produced herein are then used in the following scripts:
-- `scripts/phycosphere_hein.jl`
-- `scripts/ic_hein.jl`
 """
 function parameterspace_hein()
+    #== source radii ==#
     # generate 100 log-uniform radii between 0.1 and 100 μm
     R = exp10.(range(-1, 2, length=100))u"μm"
+
+    #== source concentration ==#
     # get a small and a large value of phytoplankton leakage rates
     # to set the bounds of the parameter space
-    Lmin = leakage_rate(R[1], 0.01) |> u"pmol/s"
-    Lmax = leakage_rate(R[end], 0.1) |> u"pmol/s"
+    R₁, R₂ = 0.1u"μm", 100u"μm"
+    Lmin = leakage_rate(R₁, 0.01) |> u"pmol/s"
+    Lmax = leakage_rate(R₂, 0.1) |> u"pmol/s"
     # get equivalent Cmin and Cmax values
-    Cmin = C(R[1], Lmin, C₀)
-    Cmax = C(R[end], Lmax, C₀)
+    Cmin = C(R₁, Lmin, C₀)
+    Cmax = C(R₂, Lmax, C₀)
     # generate 100 log-uniform values between Cmin and Cmax
     Cₛ = exp10.(range(log10(ustrip(Cmin)), log10(ustrip(Cmax)), length=100))u"μM"
-    @save datadir("Hein", "paramspaceRC.jld2") R Cₛ
+
+    @save datadir("Hein", "RC.jld2") R Cₛ
 end
 
 parameterspace_hein()

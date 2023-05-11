@@ -3,7 +3,7 @@ using DrWatson
 using JLD2, DataFrames, Distributions, HypothesisTests
 
 function sensing_kolmogorovsmirnov()
-    f = jldopen(datadir("PoissonSampling", "paramspaceRC.jld2"))
+    f = jldopen(datadir("Poisson", "RC.jld2"))
     R, Cₛ = f["R"], f["Cₛ"]
     sensing_from_waitingtimes(R, Cₛ)
 end
@@ -22,7 +22,7 @@ Collects all the waiting time datasets for source radius `R`.
 function get_datasets_waitingtimes(R)
     Rsig3 = round(typeof(1.0u"μm"), R, sigdigits=3) |> ustrip
     collect_results(
-        datadir("PoissonSampling");
+        datadir("Poisson");
         rinclude = [Regex("waitingtimes.*R=$(Rsig3)")]
     )
 end
@@ -37,7 +37,7 @@ are saved to file (with suffix "sensing").
 function sensing_from_waitingtimes(df)
     params = parse_savename(df.path)[2]
     produce_or_load(
-        datadir("PoissonSampling", "KolmogorovSmirnov"), params;
+        datadir("Poisson", "KolmogorovSmirnov"), params;
         prefix="sensing", suffix="jld2", tag=false, loadfile=false
     ) do params
         r = df.r

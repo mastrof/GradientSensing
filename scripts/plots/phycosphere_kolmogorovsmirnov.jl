@@ -10,26 +10,25 @@ Plots.default(
 
 function plot_phycosphere_ks()
     datasets = collect_results(
-        datadir("PoissonSampling", "KolmogorovSmirnov"),
+        datadir("Poisson", "KolmogorovSmirnov"),
         rinclude=[r"phycosphere"]
     )
     for df in eachrow(datasets)
-        # load R and Cₛ
-        f = jldopen(datadir("PoissonSampling", "paramspaceRC.jld2"))
+        f = jldopen(datadir("Poisson", "RC.jld2"))
         R, Cₛ = f["R"], f["Cₛ"]
         S = df.S
 
         heatmap(R, Cₛ, log10.(S./R)', scale=:log10)
         plot!(
-            xlab="R (μm)", ylab="Cₛ (pmol/s)", cbartitle="log(S/R)",
+            xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(S/R)",
             yticks=exp10.(-9:2:5)
         )
 
         # parse dataset parameters
         params = parse_savename(df.path)[2]
         # save both svg and png
-        savefig(plotsdir("PoissonSampling", "KolmogorovSmirnov", savename("phycosphere", params, "svg")))
-        savefig(plotsdir("PoissonSampling", "KolmogorovSmirnov", savename("phycosphere", params, "png")))
+        savefig(plotsdir("Poisson", "KolmogorovSmirnov", savename("phycosphere", params, "svg")))
+        savefig(plotsdir("Poisson", "KolmogorovSmirnov", savename("phycosphere", params, "png")))
     end
 end
 

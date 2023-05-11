@@ -3,7 +3,7 @@ using DrWatson
 using JLD2, DataFrames, Distributions, HypothesisTests
 
 function phycosphere_kolmogorovsmirnov()
-    f = jldopen(datadir("PoissonSampling", "paramspaceRC.jld2"))
+    f = jldopen(datadir("Poisson", "RC.jld2"))
     R, Cₛ = f["R"], f["Cₛ"]
 
     # set parameters
@@ -14,7 +14,7 @@ function phycosphere_kolmogorovsmirnov()
     params = @strdict C₀ T U Δt N
     params_ustrip = Dict(keys(params) .=> ustrip.(values(params)))
     produce_or_load(
-        datadir("PoissonSampling", "KolmogorovSmirnov"), params_ustrip;
+        datadir("Poisson", "KolmogorovSmirnov"), params_ustrip;
         prefix="phycosphere", suffix="jld2", tag=false
     ) do params_ustrip
         iter = Iterators.product(R,Cₛ) |> collect
@@ -22,7 +22,7 @@ function phycosphere_kolmogorovsmirnov()
         for i in eachindex(iter)
             R, Cₛ = iter[i]
             p = Dict("R" => ustrip(R), "Cₛ" => ustrip(Cₛ), params_ustrip...)
-            fname = datadir("PoissonSampling", "KolmogorovSmirnov",
+            fname = datadir("Poisson", "KolmogorovSmirnov",
                 savename("sensing", p, "jld2")
             )
             # if the file is missing (e.g. not evaluated) assign NaNs

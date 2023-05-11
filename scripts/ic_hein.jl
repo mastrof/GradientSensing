@@ -12,7 +12,7 @@ defined in `src/chemotactic_index.jl`.
 Returns a jld2 file with the IC value for each `(R,Cₛ)` pair.
 """
 function ic_hein()
-    f = jldopen(datadir("Hein", "paramspaceRC.jld2"))
+    f = jldopen(datadir("Hein", "RC.jld2"))
     R, Cₛ = f["R"], f["Cₛ"]
 
     # run length used to evaluate IC

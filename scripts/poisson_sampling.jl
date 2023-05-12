@@ -62,9 +62,11 @@ function sample_waitingtimes(params)
     # remove units for savename
     params_ustrip = Dict(keys(params) .=> ustrip.(values(params)))
     produce_or_load(
-        datadir("Poisson"), params_ustrip;
+        # datadir("Poisson"), # this is valid on local
+        joinpath(ENV["SCRATCH"], "Poisson"), # this is valid on cluster
+        params_ustrip;
         prefix="waitingtimes", suffix="jld2",
-        tag=false
+        tag=false, load=false
     ) do params_ustrip
         @unpack R, Cₛ, C₀, U, T, Δt, N = params
 

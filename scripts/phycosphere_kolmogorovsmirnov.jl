@@ -8,7 +8,7 @@ function phycosphere_kolmogorovsmirnov()
 
     # set parameters
     T = 100u"ms"
-    Δt = 1e-6u"ms"
+    Δt = 1e-4u"ms"
     U = 46.5u"μm/s"
     N = 100
     params = @strdict C₀ T U Δt N

@@ -66,7 +66,7 @@ function sample_waitingtimes(params)
         joinpath(ENV["SCRATCH"], "Poisson"), # this is valid on cluster
         params_ustrip;
         prefix="waitingtimes", suffix="jld2",
-        tag=false, load=false
+        tag=false, loadfile=false
     ) do params_ustrip
         @unpack R, Cₛ, C₀, U, T, Δt, N = params
 

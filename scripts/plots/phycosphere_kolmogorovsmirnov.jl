@@ -19,10 +19,7 @@ function plot_phycosphere_ks()
         S = df.S
 
         heatmap(R, Cₛ, log10.(S./R)', scale=:log10)
-        plot!(
-            xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(S/R)",
-            yticks=exp10.(-9:2:5)
-        )
+        plot!(xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(S/R)")
 
         # parse dataset parameters
         params = parse_savename(df.path)[2]

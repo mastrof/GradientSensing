@@ -19,10 +19,7 @@ function plot_ic_ks()
         ic = df.ic
 
         heatmap(R, Cₛ, log10.(ic)', scale=:log10)
-        plot!(
-            xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(IC)",
-            yticks=exp10.(-4:0)
-        )
+        plot!(xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(IC)")
 
         # parse dataset parameters
         params = parse_savename(df.path)[2]

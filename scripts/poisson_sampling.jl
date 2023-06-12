@@ -1,6 +1,10 @@
-using DrWatson
-@quickactivate :GradientSensing
-using JLD2, Base.Threads, ChunkSplitters
+using Distributed
+@everywhere using DrWatson
+@everywhere @quickactivate :GradientSensing
+@everywhere begin
+    using Base: midpoint
+    using JLD2
+end
 
 
 """
@@ -17,12 +21,11 @@ function poisson_sampling()
     N = 100 # number of repetitions for each sampling
 
     iter = Iterators.product(R, Cₛ) |> collect
-    @sync for (k_range, _) in chunks(iter, nthreads(), :scatter)
-        @spawn for k in k_range
-            local R, Cₛ = iter[k]
-            params = @strdict R Cₛ C₀ T U Δt N
-            sample_waitingtimes(params)
-        end
+    @sync @distributed for vals in iter
+        local R, Cₛ = vals
+        params = @strdict R Cₛ C₀ T U Δt N
+        sample_waitingtimes(params)
+        GC.gc()
     end
 end
 
@@ -58,7 +61,7 @@ containing the waiting times sampled during experiments.
 `waitingtimes[i][j]` returns the list of waiting times associated to the `i`-th
 repetition of the experiment at position `r[j]`.
 """
-function sample_waitingtimes(params)
+@everywhere function sample_waitingtimes(params)
     # remove units for savename
     params_ustrip = Dict(keys(params) .=> ustrip.(values(params)))
     produce_or_load(
@@ -72,10 +75,13 @@ function sample_waitingtimes(params)
 
         Δx = U*T |> u"μm" # spatial resolution of the sensor
         # define a grid from max(100u"μm",20R) to R in steps Δx
+        # and add a small random displacement
         # !! notice this starts away from the source and moves towards it !!
-        r = reverse(range(R, max(100u"μm",20R), step=Δx))
-        waitingtimes = map(_ -> spatial_counting(r, R, Cₛ, C₀, U, Δt), 1:N)
-        r = midpoints(r)
+        grid = reverse(range(R, max(100u"μm",20R), step=Δx))
+        δr = rand(N) .* Δx
+        grids_staggered = [grid .+ δ for δ in δr]
+        waitingtimes = map(grid -> spatial_counting(grid, R, Cₛ, C₀, U, Δt), grids_staggered)
+        r = map(midpoint, grids_staggered)
         @strdict waitingtimes r
     end
 end
@@ -100,7 +106,7 @@ Measurements are independent between intervals.
 - `U`: velocity with which the sensor moves through the interval
 - `Δt`: minimal temporal resolution at which the sensor can distinguish two signals
 """
-function spatial_counting(r, R, Cₛ, C₀, U, Δt)
+@everywhere function spatial_counting(r, R, Cₛ, C₀, U, Δt)
     map(k -> spatial_counting(r[k], r[k-1], R, Cₛ, C₀, U, Δt), eachindex(r)[2:end])
 end
 
@@ -122,7 +128,7 @@ Returns a vector of waiting times between successive counting events.
 - `U`: velocity with which the sensor moves through the interval
 - `Δt`: minimal temporal resolution at which the sensor can distinguish two signals
 """
-function spatial_counting(x₀, x₁, R, Cₛ, C₀, U, Δt)
+@everywhere function spatial_counting(x₀, x₁, R, Cₛ, C₀, U, Δt)
     event_times = zero([Δt])
     # use expected counts at midpoint to sizehint event_times
     xp = (x₀+x₁)/2
@@ -142,7 +148,6 @@ function spatial_counting(x₀, x₁, R, Cₛ, C₀, U, Δt)
     end
     diff(event_times)
 end
-
 
 
 poisson_sampling()

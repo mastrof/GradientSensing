@@ -1,33 +1,8 @@
 using Distributed
 @everywhere using DrWatson
 @everywhere @quickactivate :GradientSensing
-@everywhere begin
-    using Base: midpoint
-    using JLD2
-end
+@everywhere using JLD2
 
-
-"""
-Performs a molecule counting experiment for each `(R,Cₛ)` pair in
-the parameter space. (See `sample_waitingtimes`.)
-"""
-function poisson_sampling()
-    f = jldopen(datadir("Poisson", "RC.jld2"))
-    R, Cₛ = f["R"], f["Cₛ"]
-    # parameters for the sensing process
-    T = 100u"ms" # sensory integration timescale
-    U = 46.5u"μm/s" # speed
-    Δt = 1e-4u"ms" # temporal resolution of the simulation
-    N = 100 # number of repetitions for each sampling
-
-    iter = Iterators.product(R, Cₛ) |> collect
-    @sync @distributed for vals in iter
-        local R, Cₛ = vals
-        params = @strdict R Cₛ C₀ T U Δt N
-        sample_waitingtimes(params)
-        GC.gc()
-    end
-end
 
 """
     sample_waitingtimes(params)
@@ -61,12 +36,13 @@ containing the waiting times sampled during experiments.
 `waitingtimes[i][j]` returns the list of waiting times associated to the `i`-th
 repetition of the experiment at position `r[j]`.
 """
+
 @everywhere function sample_waitingtimes(params)
     # remove units for savename
     params_ustrip = Dict(keys(params) .=> ustrip.(values(params)))
     produce_or_load(
-        # datadir("Poisson"), # this is valid on local
-        joinpath(ENV["SCRATCH"], "Poisson"), # this is valid on cluster
+        datadir("Poisson"), # this is valid on local
+        # joinpath(ENV["SCRATCH"], "Poisson"), # this is valid on cluster
         params_ustrip;
         prefix="waitingtimes", suffix="jld2",
         tag=false, loadfile=false
@@ -81,9 +57,11 @@ repetition of the experiment at position `r[j]`.
         δr = rand(N) .* Δx
         grids_staggered = [grid .+ δ for δ in δr]
         waitingtimes = map(grid -> spatial_counting(grid, R, Cₛ, C₀, U, Δt), grids_staggered)
-        r = map(midpoint, grids_staggered)
+        r = map(midpoints, grids_staggered)
         @strdict waitingtimes r
     end
+    GC.gc()
+    return nothing
 end
 
 
@@ -106,6 +84,7 @@ Measurements are independent between intervals.
 - `U`: velocity with which the sensor moves through the interval
 - `Δt`: minimal temporal resolution at which the sensor can distinguish two signals
 """
+
 @everywhere function spatial_counting(r, R, Cₛ, C₀, U, Δt)
     map(k -> spatial_counting(r[k], r[k-1], R, Cₛ, C₀, U, Δt), eachindex(r)[2:end])
 end
@@ -128,6 +107,7 @@ Returns a vector of waiting times between successive counting events.
 - `U`: velocity with which the sensor moves through the interval
 - `Δt`: minimal temporal resolution at which the sensor can distinguish two signals
 """
+
 @everywhere function spatial_counting(x₀, x₁, R, Cₛ, C₀, U, Δt)
     event_times = zero([Δt])
     # use expected counts at midpoint to sizehint event_times
@@ -149,5 +129,15 @@ Returns a vector of waiting times between successive counting events.
     diff(event_times)
 end
 
+f = jldopen(datadir("Poisson", "RC.jld2"))
+R, Cₛ = f["R"], f["Cₛ"]
+# parameters for the sensing process
+T = [100]u"ms" # sensory integration timescale
+U = [46.5]u"μm/s" # speed
+Δt = [1e-2]u"ms" # temporal resolution of the simulation
+N = [100] # number of repetitions for each sampling
 
-poisson_sampling()
+allparams = @strdict R Cₛ T U Δt N
+dicts = dict_list(allparams)
+foreach(dict -> dict["C₀"] = C₀, dicts)
+pmap(sample_waitingtimes, dicts)

@@ -47,21 +47,32 @@ repetition of the experiment at position `r[j]`.
         prefix="waitingtimes", suffix="jld2",
         tag=false, loadfile=false
     ) do params_ustrip
-        @unpack R, Cₛ, C₀, U, T, Δt, N = params
-
-        Δx = U*T |> u"μm" # spatial resolution of the sensor
-        # define a grid from max(100u"μm",20R) to R in steps Δx
-        # and add a small random displacement
-        # !! notice this starts away from the source and moves towards it !!
-        grid = reverse(range(R, max(100u"μm",20R), step=Δx))
-        δr = rand(N) .* Δx
-        grids_staggered = [grid .+ δ for δ in δr]
-        waitingtimes = map(grid -> spatial_counting(grid, R, Cₛ, C₀, U, Δt), grids_staggered)
-        r = map(midpoints, grids_staggered)
-        @strdict waitingtimes r
+        produce_data(params)
     end
     GC.gc()
     return nothing
+end
+
+@everywhere function produce_data(params)
+    @unpack R, Cₛ, C₀, U, T, Δt, N = params
+    Δx = U*T |> u"μm"
+    staggered_grids = [generate_grid(R, Δx) for _ in 1:N]
+    waitingtimes = map(grid -> spatial_counting(grid, R, Cₛ, C₀, U, Δt), staggered_grids)
+    r = map(midpoints, staggered_grids)
+    @strdict waitingtimes r
+end
+
+"""
+    generate_grid(R, Δx)
+Generate a regular grid of spacing `Δx` starting at
+`max(100u"μm", 20R) ± δ` and ending at `R ± δ`,
+where `δ` is a random value in `(-Δx/2,+Δx/2)`.
+"""
+@everywhere function generate_grid(R, Δx)
+    x_end = R + rand(Uniform(-1/2,+1/2))*Δx
+    transect_length = max(100u"μm", 20R)
+    x_start = x_end + transect_length
+    return range(x_start, x_end, -Δx)
 end
 
 
@@ -120,7 +131,8 @@ Returns a vector of waiting times between successive counting events.
     while x < x₁
         i += 1
         x += U*Δt
-        ω = eventrate(C(x,R,Cₛ,C₀))
+        y = x < R ? R : x # equivalent to getting stuck at the surface
+        ω = eventrate(C(y,R,Cₛ,C₀))
         if rand() < upreferred(ω*Δt)
             # if an event occurs, record its timing
             push!(event_times, i*Δt)

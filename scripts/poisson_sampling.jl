@@ -131,7 +131,7 @@ Returns a vector of waiting times between successive counting events.
     while x < x₁
         i += 1
         x += U*Δt
-        y = x < R ? R : x # equivalent to getting stuck at the surface
+        y = abs(x) < R ? R : x # equivalent to getting stuck at the surface
         ω = eventrate(C(y,R,Cₛ,C₀))
         if rand() < upreferred(ω*Δt)
             # if an event occurs, record its timing

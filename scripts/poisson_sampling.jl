@@ -134,7 +134,7 @@ R, Cₛ = f["R"], f["Cₛ"]
 # parameters for the sensing process
 T = [100]u"ms" # sensory integration timescale
 U = [46.5]u"μm/s" # speed
-Δt = [1e-2]u"ms" # temporal resolution of the simulation
+Δt = [1e-4]u"ms" # temporal resolution of the simulation
 N = [100] # number of repetitions for each sampling
 
 allparams = @strdict R Cₛ T U Δt N

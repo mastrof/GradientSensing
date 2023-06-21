@@ -3,18 +3,19 @@ using DrWatson
 using JLD2, DataFrames, Distributions, HypothesisTests
 
 function phycosphere_kolmogorovsmirnov()
-    f = jldopen(datadir("Poisson", "RC.jld2"))
+    f = jldopen(datadir("newPoisson", "RC.jld2"))
     R, Cₛ = f["R"], f["Cₛ"]
+    R = R[1:end-1]
 
     # set parameters
     T = 100u"ms"
     Δt = 1e-4u"ms"
     U = 46.5u"μm/s"
-    N = 100
+    N = 250
     params = @strdict C₀ T U Δt N
     params_ustrip = Dict(keys(params) .=> ustrip.(values(params)))
     produce_or_load(
-        datadir("Poisson", "KolmogorovSmirnov"), params_ustrip;
+        datadir("newPoisson", "KolmogorovSmirnov"), params_ustrip;
         prefix="phycosphere", suffix="jld2", tag=false
     ) do params_ustrip
         iter = Iterators.product(R,Cₛ) |> collect
@@ -22,16 +23,13 @@ function phycosphere_kolmogorovsmirnov()
         for i in eachindex(iter)
             R, Cₛ = iter[i]
             p = Dict("R" => ustrip(R), "Cₛ" => ustrip(Cₛ), params_ustrip...)
-            fname = datadir("Poisson", "KolmogorovSmirnov",
+            fname = datadir("newPoisson", "KolmogorovSmirnov",
                 savename("sensing", p, "jld2")
             )
-            # if the file is missing (e.g. not evaluated) assign NaNs
-            @unpack r, ksavg = try
-                load(fname)
-            catch _;
-                (r=NaN, ksavg=[NaN])
-            end
-            S[i] = isnan(ksavg[1]) ? (NaN)u"μm" : sensing_threshold(r, ksavg, R)
+            @unpack r, ks, ksavg = load(fname)
+            #S[i] = mean(sensing_threshold.(r, ks, R))
+            mr = mean(collect.(r))
+            S[i] = sensing_threshold(mr, ksavg, R)
         end
         @strdict S
     end

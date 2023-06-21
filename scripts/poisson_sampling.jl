@@ -68,11 +68,13 @@ Generate a regular grid of spacing `Δx` starting at
 `max(100u"μm", 20R) ± δ` and ending at `R ± δ`,
 where `δ` is a random value in `(-Δx/2,+Δx/2)`.
 """
+
 @everywhere function generate_grid(R, Δx)
-    x_end = R + rand(Uniform(-1/2,+1/2))*Δx
+    δ = (rand() - 1/2) * Δx
+    x_end = R + δ
     transect_length = max(100u"μm", 20R)
     x_start = x_end + transect_length
-    return range(x_start, x_end, -Δx)
+    return range(x_start, x_end, step=-Δx)
 end
 
 

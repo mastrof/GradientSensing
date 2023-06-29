@@ -1,5 +1,23 @@
 export unpack_dataframe
 
+import DrWatson
+function DrWatson.savename(c::Dict{String, <:Quantity}, suffix::String; kwargs...)
+    c_strip = Dict(keys(c) .=> ustrip.(values(c)))
+    savename(c_strip, suffix; kwargs...)
+end
+function DrWatson.savename(prefix::String, c::Dict{String, <:Quantity}; kwargs...)
+    c_strip = Dict(keys(c) .=> ustrip.(values(c)))
+    savename(prefix, c_strip; kwargs...)
+end
+function DrWatson.savename(c::Dict{String, <:Quantity}; kwargs...)
+    c_strip = Dict(keys(c) .=> ustrip.(values(c)))
+    savename(c_strip; kwargs...)
+end
+function DrWatson.savename(prefix::String, c::Dict{String, <:Quantity}, suffix::String; kwargs...)
+    c_strip = Dict(keys(c) .=> ustrip.(values(c)))
+    savename(prefix, c_strip, suffix; kwargs...)
+end
+
 """
     unpack_dataframe(df)
 Take a dataframe `df` produced by the `produce_or_load` function

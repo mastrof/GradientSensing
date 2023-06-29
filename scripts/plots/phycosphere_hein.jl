@@ -25,7 +25,7 @@ function plot_phycosphere_hein()
         params = parse_savename(df.path)[2]
         # save both svg and png
         savefig(plotsdir("Hein", savename("phycosphere", params, "svg")))
-        savefig(plotsdir("Hein", savename("phycosphere", params, "png")))
+        # savefig(plotsdir("Hein", savename("phycosphere", params, "png")))
     end
 end
 

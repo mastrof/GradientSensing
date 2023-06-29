@@ -14,7 +14,16 @@ Find the distance from the source at which the SNR drops below the threshold.
 - `Π`: chemotactic precision factor
 - `q`: SNR threshold, defaults to 1
 """
-function HeinRadius(R, L::Quantity{<:Real,𝐍/𝐓}, C₀, T, Dc, U, Π; q=1)
+function HeinRadius(
+    R::Quantity{<:Real, 𝐋},
+    L::Quantity{<:Real, 𝐍/𝐓},
+    C₀::Quantity{<:Real, 𝐍/𝐋^3},
+    T::Quantity{<:Real, 𝐓},
+    Dc::Quantity{<:Real, 𝐋^2/𝐓},
+    U::Quantity{<:Real, 𝐋/𝐓},
+    Π;
+    q=1
+)
     # equation to solve: SNR = q
     f(r) = snr(r,L,C₀,T,Dc,U,Π) - q
     # try to solve SNR=q
@@ -43,8 +52,17 @@ Find the distance from the source at which the SNR drops below the threshold.
 - `Π`: chemotactic precision factor
 - `q`: SNR threshold, defaults to 1
 """
-function HeinRadius(R, Cₛ::Quantity{<:Real,𝐍/𝐋^3}, C₀, T, Dc, U, Π; q=1)
-    # equation to solve: SNR = q
+function HeinRadius(
+    R::Quantity{<:Real, 𝐋},
+    Cₛ::Quantity{<:Real,𝐍/𝐋^3},
+    C₀::Quantity{<:Real, 𝐍/𝐋^3},
+    T::Quantity{<:Real, 𝐓},
+    Dc::Quantity{<:Real, 𝐋^2/𝐓},
+    U::Quantity{<:Real, 𝐋/𝐓},
+    Π;
+    q=1
+)
+# equation to solve: SNR = q
     f(r) = snr(r,R,Cₛ,C₀,T,Dc,U,Π) - q
     # try to solve SNR=q
     # if a solution cannot be found, there is no phycosphere

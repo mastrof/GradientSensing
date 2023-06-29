@@ -3,14 +3,15 @@ using DrWatson
 using JLD2, DataFrames
 
 function ic_ks()
-    f = jldopen(datadir("Poisson", "RC.jld2"))
+    f = jldopen(datadir("newPoisson", "RC.jld2"))
     R, Cₛ = f["R"], f["Cₛ"]
+    R = R[1:end-1]
 
     # run length used to evaluate IC
     λ = 46.5u"μm"/2
 
     datasets = collect_results(
-        datadir("Poisson", "KolmogorovSmirnov"),
+        datadir("newPoisson", "KolmogorovSmirnov"),
         rinclude=[r"phycosphere"]
     )
 
@@ -21,7 +22,7 @@ function ic_ks()
         S = df.S
 
         produce_or_load(
-            datadir("Poisson", "KolmogorovSmirnov"), params;
+            datadir("newPoisson", "KolmogorovSmirnov"), params;
             prefix="IC", suffix="jld2", tag=false, force=true
         ) do params
             ic = @. IC(λ, R, S)

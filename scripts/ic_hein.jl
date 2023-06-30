@@ -1,7 +1,9 @@
+##
 using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames
 
+##
 """
 Evaluates the black-hole chemotactic index for the Hein phycosphere.
 
@@ -12,13 +14,13 @@ defined in `src/chemotactic_index.jl`.
 Returns a jld2 file with the IC value for each `(R,Cₛ)` pair.
 """
 function ic_hein()
-    f = jldopen(datadir("Hein", "RC.jld2"))
+    f = jldopen(datadir("HeinMod", "RC.jld2"))
     R, Cₛ = f["R"], f["Cₛ"]
 
     # run length used to evaluate IC
-    λ = 46.5u"μm"/2
+    λ = 30u"μm"
 
-    datasets = collect_results(datadir("Hein"), rinclude=[r"phycosphere"])
+    datasets = collect_results(datadir("HeinMod"), rinclude=[r"phycosphere"])
     for df in eachrow(datasets)
         params = parse_savename(df.path)[2]
         # add λ to params
@@ -26,7 +28,7 @@ function ic_hein()
         S = df.S
 
         produce_or_load(
-            datadir("Hein"), params;
+            datadir("HeinMod"), params;
             prefix="IC", suffix="jld2",
             tag=false
         ) do params

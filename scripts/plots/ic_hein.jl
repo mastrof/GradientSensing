@@ -8,7 +8,6 @@ set_theme!(Publication,
     Axis=(
         xticksvisible=false, yticksvisible=false,
         xminorticksvisible=false, yminorticksvisible=false,
-        titlefont=:regular, titlesize=24,
     )
 )
 
@@ -41,12 +40,7 @@ function makeplot(datasets, R, Cₛ)
         if i == 1
             ax.ylabel = "Cₛ (μM)"
         end
-        Label(fig[1, i, TopLeft()], labels[i],
-            fontsize = 32,
-            font = :bold,
-            padding = (0, 5, 5, 0),
-            halign = :right
-        )
+        Label(fig[1, i, TopLeft()], labels[i], halign=:right)
     end
     fig
 end

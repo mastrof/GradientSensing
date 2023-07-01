@@ -33,7 +33,7 @@ end
 ## parameters
 T = [50, 100, 200]u"ms"
 Dc = [100, 500, 1000]u"μm^2/s"
-U = [30, 50, 80]u"μm/s"
+U = [25, 50, 100]u"μm/s"
 Π = [1, 6]u"1"
 C₀ = [1]u"nM"
 allparams = @strdict T Dc U Π C₀

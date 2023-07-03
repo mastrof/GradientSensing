@@ -35,11 +35,11 @@ If this condition is satisfied, the function returns `1.0`
 otherwise (p≥0.05) the function returns `0.0`.
 """
 
-@everywhere function kstestright(waitingtimes, c, Δt)
+@everywhere function kstestright(waitingtimes, c, Δt, Dc)
     isempty(waitingtimes) && return Float64(false)
     # need to convert all values to same units and then ustrip
     # because HypothesisTests functions don't work with units
-    τ = waitingtime(c) |> u"ms" |> ustrip
+    τ = waitingtime(c, Dc) |> u"ms" |> ustrip
     tmin = Δt |> u"ms" |> ustrip
     # expected pdf of waiting times at concentration c
     reference_pdf = Truncated(Exponential(τ), tmin, Inf)
@@ -61,12 +61,12 @@ of each interval in the transect, which defines the reference distribution for
 the absorption waiting times in the KS test.
 """
 
-@everywhere function kstest_transect(waitingtimes::VVQ, r, Δt, R, Cₛ, C₀)
+@everywhere function kstest_transect(waitingtimes::VVQ, r, Δt, R, Cₛ, C₀, Dc)
     c = @. C(r, R, Cₛ, C₀)
-    [kstestright(waitingtimes[i], c[i], Δt) for i in eachindex(waitingtimes)]
+    [kstestright(waitingtimes[i], c[i], Δt, Dc) for i in eachindex(waitingtimes)]
 end
-@everywhere function kstest_transect(waitingtimes::VVVQ, r, Δt, R, Cₛ, C₀)
-    [kstest_transect(waitingtimes[i],r[i],Δt,R,Cₛ,C₀) for i in eachindex(waitingtimes)]
+@everywhere function kstest_transect(waitingtimes::VVVQ, r, Δt, R, Cₛ, C₀, Dc)
+    [kstest_transect(waitingtimes[i],r[i],Δt,R,Cₛ,C₀,Dc) for i in eachindex(waitingtimes)]
 end
 
 
@@ -100,8 +100,10 @@ are saved to file (with suffix "sensing").
         waitingtimes = df.waitingtimes
         R = params["R"]u"μm"
         Cₛ = params["Cₛ"]u"μM"
+        C₀ = params["C₀"]u"nM"
+        Dc = params["Dc"]u"μm^2/s"
         Δt = params["Δt"]u"ms"
-        ks = kstest_transect(waitingtimes, r, Δt, R, Cₛ, C₀)
+        ks = kstest_transect(waitingtimes, r, Δt, R, Cₛ, C₀, Dc)
         waitingtimes = nothing
         GC.gc()
         # evaluate mean in each interval
@@ -130,5 +132,4 @@ end
 ##
 f = jldopen(datadir("newPoisson", "RC.jld2"))
 R, Cₛ = f["R"], f["Cₛ"]
-R = R[1:end-1]
 produce_data(R, Cₛ)

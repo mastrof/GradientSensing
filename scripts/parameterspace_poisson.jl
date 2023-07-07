@@ -42,6 +42,7 @@ Cmin = C(R₁, Lmin, C₀, Dc)
 Cmax = C(R₂, Lmax, C₀, Dc)
 # generate 10 log-uniform values between Cmin and Cmax
 Cₛ = exp10.(range(log10(ustrip(Cmin)), log10(ustrip(Cmax)), length=10))u"μM"
+Cₛ = vcat(Cₛ, midpoints(Cₛ))
 # remove eventual duplicates and sort
 unique!(Cₛ)
 sort!(Cₛ)

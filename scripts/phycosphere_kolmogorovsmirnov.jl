@@ -1,38 +1,58 @@
+##
 using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames, Distributions, HypothesisTests
 
+##
 function phycosphere_kolmogorovsmirnov()
-    f = jldopen(datadir("newPoisson", "RC.jld2"))
-    R, Cₛ = f["R"], f["Cₛ"]
-    R = R[1:end-1]
+    datasets = collect_results(
+        datadir("Poisson", "KolmogorovSmirnov");
+        rinclude = [r"sensing"]
+    ) |> unpack_dataframe
+ 
+    dfgroups = [:T, :U, :Dc]
+    gdf = groupby(datasets, dfgroups)
 
-    # set parameters
-    T = 100u"ms"
-    Δt = 1e-4u"ms"
-    U = 46.5u"μm/s"
-    N = 250
-    params = @strdict C₀ T U Δt N
-    params_ustrip = Dict(keys(params) .=> ustrip.(values(params)))
-    produce_or_load(
-        datadir("newPoisson", "KolmogorovSmirnov"), params_ustrip;
-        prefix="phycosphere", suffix="jld2", tag=false
-    ) do params_ustrip
-        iter = Iterators.product(R,Cₛ) |> collect
-        S = zeros(typeof(1.0u"μm"), size(iter))
-        for i in eachindex(iter)
-            R, Cₛ = iter[i]
-            p = Dict("R" => ustrip(R), "Cₛ" => ustrip(Cₛ), params_ustrip...)
-            fname = datadir("newPoisson", "KolmogorovSmirnov",
-                savename("sensing", p, "jld2")
-            )
-            @unpack r, ks, ksavg = load(fname)
-            #S[i] = mean(sensing_threshold.(r, ks, R))
-            mr = mean(collect.(r))
-            S[i] = sensing_threshold(mr, ksavg, R)
+    for df in gdf
+        C₀ = df.C₀[1]
+        Dc = df.Dc[1]
+        T = df.T[1]
+        U = df.U[1]
+        N = df.N[1]
+        Δt = df.Δt[1]
+        config = @strdict C₀ Dc T U N Δt
+        produce_or_load(
+            datadir("Poisson", "KolmogorovSmirnov"), config;
+            prefix = "phycosphere",
+            suffix = "jld2",
+            tag = false,
+            loadfile = false,
+            force = true
+        ) do config
+            S = phycosphere_kolmogorovsmirnov(df)
+            @strdict S
         end
-        @strdict S
     end
+end
+
+function phycosphere_kolmogorovsmirnov(df)
+    f = jldopen(datadir("Poisson", "RC.jld2"), "r")
+    R, Cₛ = f["R"], f["Cₛ"]
+    close(f)
+    iter = Iterators.product(R, Cₛ) |> collect
+    S = zeros(typeof(1.0u"μm"), size(iter))
+    for i in eachindex(iter)
+        R, Cₛ = iter[i]
+        row = subset(df,
+            :R => r -> r .== round(ustrip(R), sigdigits=3),
+            :Cₛ => c -> c .== round(ustrip(Cₛ), sigdigits=3)
+        ) |> first
+        l = length(row.ksavg)
+        r = [collect(s[1:l]) for s in row.r]
+        mr = mean(r)
+        S[i] = sensing_threshold(mr, row.ksavg, R)
+    end
+    S
 end
 
 """
@@ -51,4 +71,5 @@ function sensing_threshold(grid, sensing, R)
     isnothing(idx) ? R : grid[idx]
 end
 
+##
 phycosphere_kolmogorovsmirnov()

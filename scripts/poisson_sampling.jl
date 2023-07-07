@@ -77,7 +77,7 @@ where `δ` is a random value in `(-Δx/2,+Δx/2)`.
     x_end = R + δ
     transect_length = max(100u"μm", 20R)
     x_start = x_end + transect_length
-    return range(x_start, x_end, step=-Δx)
+    return reverse(range(x_end, x_start, step=Δx))
 end
 
 

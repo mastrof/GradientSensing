@@ -76,10 +76,14 @@ Collects all the waiting time datasets for source radius `R`.
 """
 function get_datasets_waitingtimes(R)
     Rsig3 = round(typeof(1.0u"μm"), R, sigdigits=3) |> ustrip
-    collect_results(
-        datadir("newPoisson");
-        rinclude = [Regex("waitingtimes.*R=$(Rsig3)")]
+    filenames = readdir(
+        datadir("Poisson"); # on local
+        # joinpath(ENV["SCRATCH"], "Poisson"); # on cluster
+        join = true
     )
+    filter!(s -> contains(s, "waitingtimes"), filenames)
+    filter!(s -> contains(s, "R=$(Rsig3)"), filenames)
+    filenames
 end
 
 """
@@ -90,14 +94,17 @@ Outputs (transect midpoints, KS sensing statistics, fraction of KS successes)
 are saved to file (with suffix "sensing").
 """
 
-@everywhere function sensing_from_waitingtimes(df)
-    params = parse_savename(df.path)[2]
+@everywhere function sensing_from_waitingtimes(fname)
+    params = parse_savename(fname)[2]
     produce_or_load(
-        datadir("newPoisson", "KolmogorovSmirnov"), params;
+        datadir("Poisson", "KolmogorovSmirnov"), params; # on local
+        joinpath(ENV["SCRATCH"], "Poisson", "KolmogorovSmirnov"), params; # on cluster
         prefix="sensing", suffix="jld2", tag=false, loadfile=false
     ) do params
-        r = df.r
-        waitingtimes = df.waitingtimes
+        f = jldopen(fname, "r")
+        r = f["r"]
+        waitingtimes = f["waitingtimes"]
+        close(f)
         R = params["R"]u"μm"
         Cₛ = params["Cₛ"]u"μM"
         C₀ = params["C₀"]u"nM"
@@ -107,7 +114,8 @@ are saved to file (with suffix "sensing").
         waitingtimes = nothing
         GC.gc()
         # evaluate mean in each interval
-        ksavg = mean(ks)
+        l = minimum(length.(ks))
+        ksavg = mean([k[1:l] for k in ks])
         @strdict r ks ksavg
     end
     GC.gc()
@@ -123,13 +131,13 @@ function produce_data(R::AbstractVector, Cₛ::AbstractVector)
     for i in eachindex(R)
         datasets = get_datasets_waitingtimes(R[i])
         GC.gc()
-        pmap(sensing_from_waitingtimes, eachrow(datasets))
+        pmap(sensing_from_waitingtimes, datasets)
         datasets = nothing
         GC.gc()
     end
 end
 
 ##
-f = jldopen(datadir("newPoisson", "RC.jld2"))
+f = jldopen(datadir("Poisson", "RC.jld2"))
 R, Cₛ = f["R"], f["Cₛ"]
 produce_data(R, Cₛ)

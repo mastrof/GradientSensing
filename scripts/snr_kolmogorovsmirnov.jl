@@ -4,7 +4,7 @@ using JLD2, DataFrames
 
 function snr_at_ksphycosphere()
     datasets = collect_results(
-        datadir("Poisson", "KolmogorovSmirnov"),
+        datadir("newPoisson", "KolmogorovSmirnov"),
         rinclude = [r"phycosphere"]
     )
     for df in eachrow(datasets)
@@ -13,12 +13,13 @@ function snr_at_ksphycosphere()
 end
 
 function snr_at_phycosphere(df)
-    f = jldopen(datadir("Poisson", "RC.jld2"))
+    f = jldopen(datadir("newPoisson", "RC.jld2"))
     @unpack R, Cₛ = f
+    R = R[1:end-1]
     params = parse_savename(df.path)[2]
-    params["Π"] = 1
+    params["Π"] = 6
     produce_or_load(
-        datadir("Poisson", "KolmogorovSmirnov"), params;
+        datadir("newPoisson", "KolmogorovSmirnov"), params;
         prefix = "SNR", suffix = "jld2",
         tag = false, loadfile = false, force = true
     ) do params

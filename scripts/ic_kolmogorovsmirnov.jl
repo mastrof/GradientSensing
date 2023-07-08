@@ -7,7 +7,7 @@ function ic_ks()
     R, Cₛ = f["R"], f["Cₛ"]
 
     # run length used to evaluate IC
-    λ = 46.5u"μm"/2
+    λ = 30u"μm"
 
     datasets = collect_results(
         datadir("Poisson", "KolmogorovSmirnov"),
@@ -22,7 +22,7 @@ function ic_ks()
 
         produce_or_load(
             datadir("Poisson", "KolmogorovSmirnov"), params;
-            prefix="IC", suffix="jld2", tag=false, force=true
+            prefix="IC", suffix="jld2", tag=false
         ) do params
             ic = @. IC(λ, R, S)
             @strdict ic

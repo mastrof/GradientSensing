@@ -1,32 +1,137 @@
+##
 using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames
-using Plots; Plots.pyplot()
-Plots.default(
-    thickness_scaling=1.5, frame=:border, grid=false,
-    bgcolorlegend=:transparent, fgcolorlegend=:transparent,
-    palette=:Dark2
+using CairoMakie
+using PublicationFiguresMakie
+set_theme!(Publication,
+    Axis=(
+        xticksvisible=false, yticksvisible=false,
+        xminorticksvisible=false, yminorticksvisible=false,
+    )
 )
 
-function plot_phycosphere_hein()
-    datasets = collect_results(datadir("HeinMod"), rinclude=[r"phycosphere"])
-    for df in eachrow(datasets)
-        f = jldopen(datadir("HeinMod", "RC.jld2"))
-        R, Cₛ = f["R"], f["Cₛ"]
-        S = df.S
+##
+function makeplot(datasets, R, Cₛ)
+    clims = (0, 2.5)
+    clevels = range(clims..., step=0.25)
+    cmap = :viridis
 
-        contourf(R, Cₛ, log10.(S./R)', scale=:log10)
-        plot!(
-            xlab="R (μm)", ylab="Cₛ (μM)", cbartitle="log(S/R)",
-            yticks=exp10.(-10:2:4)
+    fig = Figure(resolution = TwoColumns(1));
+    Colorbar(fig[1,4],
+        colormap = cmap,
+        colorrange = clims,
+        ticks = 0:2,
+        label = "log(S/R)"
+    )
+    labels = ["A", "B", "C"]
+
+    for (i,df) in enumerate(eachrow(datasets))
+        S = ustrip.(df.S)
+        ax, _ = contourf(fig[1,i], R, Cₛ, log10.(S./R),
+            colormap = cmap,
+            levels = clevels,
         )
-
-        # parse dataset parameters
-        params = parse_savename(df.path)[2]
-        # save both svg and png
-        savefig(plotsdir("HeinMod", savename("phycosphere", params, "svg")))
-        savefig(plotsdir("HeinMod", savename("phycosphere", params, "png")))
+        tightlimits!(ax)
+        ax.xscale = log10
+        ax.yscale = log10
+        ax.xlabel = "R (μm)"
+        if i == 1
+            ax.ylabel = "Cₛ (μM)"
+        end
+        Label(fig[1, i, TopLeft()], labels[i], halign=:right)
     end
+
+    fig
 end
 
-plot_phycosphere_hein()
+##
+function plot_phycosphere_hein_byDc()
+    f = jldopen(datadir("HeinMod", "RC.jld2"))
+    R, Cₛ = ustrip.(f["R"]), ustrip.(f["Cₛ"])
+    close(f)
+
+    alldatasets = unpack_dataframe(
+        collect_results(datadir("HeinMod"), rinclude=[r"phycosphere"], rexclude=[r"old"])
+    )
+    Ū = 50
+    T̄ = 100
+    Π̄ = 6
+    datasets = subset(alldatasets,
+        :U => U -> U .== Ū,
+        :T => T -> T .== T̄,
+        :Π => Π -> Π .== Π̄,
+    )
+    sort!(datasets, [:Dc])
+ 
+    fig = makeplot(datasets, R, Cₛ)
+    for (i,df) in enumerate(eachrow(datasets))
+        ax = contents(fig[1,i])[1]
+        ax.title = "Dc = $(df.Dc)μm²/s"
+    end
+
+    save(plotsdir("HeinMod", "phycosphere_varDc_T=$(T̄)_U=$(Ū)_Π=$(Π̄).svg"), fig)
+end
+
+plot_phycosphere_hein_byDc()
+
+
+##
+function plot_phycosphere_hein_byU()
+    f = jldopen(datadir("HeinMod", "RC.jld2"))
+    R, Cₛ = ustrip.(f["R"]), ustrip.(f["Cₛ"])
+    close(f)
+
+    alldatasets = unpack_dataframe(
+        collect_results(datadir("HeinMod"), rinclude=[r"phycosphere"], rexclude=[r"old"])
+    )
+    D̄ = 500
+    T̄ = 100
+    Π̄ = 6
+    datasets = subset(alldatasets,
+        :Dc => D -> D .== D̄,
+        :T => T -> T .== T̄,
+        :Π => Π -> Π .== Π̄,
+    )
+    sort!(datasets, [:U])
+    
+    fig = makeplot(datasets, R, Cₛ)
+    for (i,df) in enumerate(eachrow(datasets))
+        ax = contents(fig[1,i])[1]
+        ax.title = "U = $(df.U)μm/s"
+    end
+
+    save(plotsdir("HeinMod", "phycosphere_varU_Dc=$(D̄)_T=$(T̄)_Π=$(Π̄).svg"), fig)
+end
+
+plot_phycosphere_hein_byU()
+
+##
+function plot_phycosphere_hein_byT()
+    f = jldopen(datadir("HeinMod", "RC.jld2"))
+    R, Cₛ = ustrip.(f["R"]), ustrip.(f["Cₛ"])
+    close(f)
+
+    alldatasets = unpack_dataframe(
+        collect_results(datadir("HeinMod"), rinclude=[r"phycosphere"], rexclude=[r"old"])
+    )
+    D̄ = 500
+    Ū = 50
+    Π̄ = 6
+    datasets = subset(alldatasets,
+        :Dc => D -> D .== D̄,
+        :U => U -> U .== Ū,
+        :Π => Π -> Π .== Π̄,
+    )
+    sort!(datasets, [:T])
+    
+    fig = makeplot(datasets, R, Cₛ)
+    for (i,df) in enumerate(eachrow(datasets))
+        ax = contents(fig[1,i])[1]
+        ax.title = "T = $(df.T)ms"
+    end
+
+    save(plotsdir("HeinMod", "phycosphere_varT_Dc=$(D̄)_U=$(Ū)_Π=$(Π̄).svg"), fig)
+end
+
+plot_phycosphere_hein_byT()

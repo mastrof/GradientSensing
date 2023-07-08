@@ -1,29 +1,25 @@
-using DrWatson
-@quickactivate :GradientSensing
-using JLD2, Base.Threads, ChunkSplitters
+##
+using Distributed
+@everywhere using DrWatson
+@everywhere @quickactivate :GradientSensing
+@everywhere using JLD2
 
 
-"""
-Performs a molecule counting experiment for each `(R,Cₛ)` pair in
-the parameter space. (See `sample_waitingtimes`.)
-"""
-function poisson_sampling()
-    f = jldopen(datadir("Poisson", "RC.jld2"))
-    R, Cₛ = f["R"], f["Cₛ"]
-    # parameters for the sensing process
-    T = 100u"ms" # sensory integration timescale
-    U = 46.5u"μm/s" # speed
-    Δt = 1e-4u"ms" # temporal resolution of the simulation
-    N = 100 # number of repetitions for each sampling
-
-    iter = Iterators.product(R, Cₛ) |> collect
-    @sync for (k_range, _) in chunks(iter, nthreads(), :scatter)
-        @spawn for k in k_range
-            local R, Cₛ = iter[k]
-            params = @strdict R Cₛ C₀ T U Δt N
-            sample_waitingtimes(params)
-        end
+##
+@everywhere function produce_data(params)
+    produce_or_load(
+        datadir("Poisson"), # on local
+        # joinpath(ENV["SCRATCH"], "Poisson"), # on cluster
+        params;
+        prefix = "waitingtimes",
+        suffix = "jld2",
+        tag = false,
+        loadfile = false,
+    ) do params
+        sample_waitingtimes(params)
     end
+    GC.gc()
+    return nothing
 end
 
 """
@@ -36,6 +32,7 @@ properties of the simulation:
 - `R`: source radius
 - `Cₛ`: excess concentration at the surface of the source
 - `C₀`: background concentration (at infinite distance from the source)
+- `Dc`: diffusivity of the attractant molecules
 - `U`: speed at which the sensor moves along the transect
 - `T`: sensory integration timescale of the sensor
 - `Δt`: minimal temporal resolution at which the sensor can distinguish two events
@@ -58,31 +55,34 @@ containing the waiting times sampled during experiments.
 `waitingtimes[i][j]` returns the list of waiting times associated to the `i`-th
 repetition of the experiment at position `r[j]`.
 """
-function sample_waitingtimes(params)
-    # remove units for savename
-    params_ustrip = Dict(keys(params) .=> ustrip.(values(params)))
-    produce_or_load(
-        # datadir("Poisson"), # this is valid on local
-        joinpath(ENV["SCRATCH"], "Poisson"), # this is valid on cluster
-        params_ustrip;
-        prefix="waitingtimes", suffix="jld2",
-        tag=false, loadfile=false
-    ) do params_ustrip
-        @unpack R, Cₛ, C₀, U, T, Δt, N = params
 
-        Δx = U*T |> u"μm" # spatial resolution of the sensor
-        # define a grid from max(100u"μm",20R) to R in steps Δx
-        # !! notice this starts away from the source and moves towards it !!
-        r = reverse(range(R, max(100u"μm",20R), step=Δx))
-        waitingtimes = map(_ -> spatial_counting(r, R, Cₛ, C₀, U, Δt), 1:N)
-        r = midpoints(r)
-        @strdict waitingtimes r
-    end
+@everywhere function sample_waitingtimes(params)
+    @unpack R, Cₛ, C₀, Dc, U, T, Δt, N = params
+    Δx = U*T |> u"μm"
+    staggered_grids = [generate_grid(R, Δx) for _ in 1:N]
+    waitingtimes = map(grid -> spatial_counting(grid, R, Cₛ, C₀, Dc, U, Δt), staggered_grids)
+    r = map(midpoints, staggered_grids)
+    @strdict waitingtimes r
+end
+
+"""
+    generate_grid(R, Δx)
+Generate a regular grid of spacing `Δx` starting at
+`max(100u"μm", 20R) ± δ` and ending at `R ± δ`,
+where `δ` is a random value in `(-Δx/2,+Δx/2)`.
+"""
+
+@everywhere function generate_grid(R, Δx)
+    δ = (rand() - 1/2) * Δx
+    x_end = R + δ
+    transect_length = max(100u"μm", 20R)
+    x_start = x_end + transect_length
+    return reverse(range(x_end, x_start, step=Δx))
 end
 
 
 """
-    spatial_counting(r, R, Cₛ, C₀, U, Δt)
+    spatial_counting(r, R, Cₛ, C₀, Dc, U, Δt)
 Simulates a concentration sensor moving with speed `U` along a grid `r`.
 while counting Poissonian absorption events from the surrounding concentration field.
 The concentration field is produced by a spherical source with radius `R`
@@ -97,15 +97,17 @@ Measurements are independent between intervals.
 - `R`: source radius
 - `Cₛ`: excess concentration at the surface of the source
 - `C₀`: backgrund concentration (at infinite distance from the source)
+- `Dc`: diffusivity of the attractant molecules
 - `U`: velocity with which the sensor moves through the interval
 - `Δt`: minimal temporal resolution at which the sensor can distinguish two signals
 """
-function spatial_counting(r, R, Cₛ, C₀, U, Δt)
-    map(k -> spatial_counting(r[k], r[k-1], R, Cₛ, C₀, U, Δt), eachindex(r)[2:end])
+
+@everywhere function spatial_counting(r, R, Cₛ, C₀, Dc, U, Δt)
+    map(k -> spatial_counting(r[k], r[k-1], R, Cₛ, C₀, Dc, U, Δt), eachindex(r)[2:end])
 end
 
 """
-    spatial_counting(x₀, x₁, R, Cₛ, C₀, U, Δt)
+    spatial_counting(x₀, x₁, R, Cₛ, C₀, Dc, U, Δt)
 Simulates a concentration sensor moving with speed `U` in an interval [x₀,x₁]
 while counting Poissonian absorption events from the surrounding concentration field.
 The concentration field is produced by a spherical source with radius `R`
@@ -119,14 +121,16 @@ Returns a vector of waiting times between successive counting events.
 - `R`: source radius
 - `Cₛ`: excess concentration at the surface of the source
 - `C₀`: backgrund concentration (at infinite distance from the source)
+- `Dc`: diffusivity of the attractant molecules
 - `U`: velocity with which the sensor moves through the interval
 - `Δt`: minimal temporal resolution at which the sensor can distinguish two signals
 """
-function spatial_counting(x₀, x₁, R, Cₛ, C₀, U, Δt)
+
+@everywhere function spatial_counting(x₀, x₁, R, Cₛ, C₀, Dc, U, Δt)
     event_times = zero([Δt])
     # use expected counts at midpoint to sizehint event_times
     xp = (x₀+x₁)/2
-    n = nevents(C(xp,R,Cₛ,C₀), Δt)
+    n = nevents(C(xp,R,Cₛ,C₀), Δt, Dc)
     sizehint!(event_times, 2*ceil(Int,n))
     # start from x₀ and move in steps U*Δt
     i = 0
@@ -134,7 +138,8 @@ function spatial_counting(x₀, x₁, R, Cₛ, C₀, U, Δt)
     while x < x₁
         i += 1
         x += U*Δt
-        ω = eventrate(C(x,R,Cₛ,C₀))
+        y = abs(x) < R ? R : x # equivalent to getting stuck at the surface
+        ω = eventrate(C(y,R,Cₛ,C₀), Dc)
         if rand() < upreferred(ω*Δt)
             # if an event occurs, record its timing
             push!(event_times, i*Δt)
@@ -144,5 +149,20 @@ function spatial_counting(x₀, x₁, R, Cₛ, C₀, U, Δt)
 end
 
 
+## parameters
+f = jldopen(datadir("Poisson", "RC.jld2"))
+R, Cₛ = f["R"], f["Cₛ"]
+close(f)
+# parameters for the sensing process
+T = [50, 100, 200]u"ms" # sensory integration timescale
+Dc = [500]u"μm^2/s" # molecular diffusivity of compound
+U = [50]u"μm/s" # speed
+C₀ = [1]u"nM" # background attractant concentration
+Δt = [1e-4]u"ms" # temporal resolution of the simulation
+N = [250] # number of repetitions for each sampling
 
-poisson_sampling()
+allparams = @strdict R Cₛ T Dc U C₀ Δt N
+dicts = dict_list(allparams)
+
+## run
+pmap(produce_data, dicts)

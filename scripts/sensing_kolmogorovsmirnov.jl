@@ -98,7 +98,7 @@ are saved to file (with suffix "sensing").
     params = parse_savename(fname)[2]
     produce_or_load(
         datadir("Poisson", "KolmogorovSmirnov"), params; # on local
-        joinpath(ENV["SCRATCH"], "Poisson", "KolmogorovSmirnov"), params; # on cluster
+        #joinpath(ENV["SCRATCH"], "Poisson", "KolmogorovSmirnov"), params; # on cluster
         prefix="sensing", suffix="jld2", tag=false, loadfile=false
     ) do params
         f = jldopen(fname, "r")

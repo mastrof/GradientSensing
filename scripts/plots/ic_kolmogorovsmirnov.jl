@@ -46,7 +46,6 @@ function makeplot(datasets, R, Cₛ)
 end
 
 ##
-#==
 function plot_phycosphere_hein_byDc()
     f = jldopen(datadir("Poisson", "RC.jld2"))
     R, Cₛ = ustrip.(f["R"]), ustrip.(f["Cₛ"])
@@ -73,10 +72,8 @@ function plot_phycosphere_hein_byDc()
 end
 
 plot_phycosphere_hein_byDc()
-==#
 
 ##
-#==
 function plot_phycosphere_hein_byU()
     f = jldopen(datadir("Poisson", "RC.jld2"))
     R, Cₛ = ustrip.(f["R"]), ustrip.(f["Cₛ"])
@@ -103,7 +100,6 @@ function plot_phycosphere_hein_byU()
 end
 
 plot_phycosphere_hein_byU()
-==#
 
 ##
 function plot_phycosphere_hein_byT()

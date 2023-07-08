@@ -27,7 +27,6 @@ function phycosphere_kolmogorovsmirnov()
             suffix = "jld2",
             tag = false,
             loadfile = false,
-            force = true
         ) do config
             S = phycosphere_kolmogorovsmirnov(df)
             @strdict S

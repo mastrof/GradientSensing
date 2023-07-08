@@ -70,19 +70,13 @@ end
 end
 
 
-"""
-    get_datasets_waitingtimes(R)
-Collects all the waiting time datasets for source radius `R`.
-"""
-function get_datasets_waitingtimes(R)
-    Rsig3 = round(typeof(1.0u"μm"), R, sigdigits=3) |> ustrip
+function get_filelist_waitingtimes()
     filenames = readdir(
         datadir("Poisson"); # on local
-        # joinpath(ENV["SCRATCH"], "Poisson"); # on cluster
+        #joinpath(ENV["SCRATCH"], "Poisson"); # on cluster
         join = true
     )
     filter!(s -> contains(s, "waitingtimes"), filenames)
-    filter!(s -> contains(s, "R=$(Rsig3)"), filenames)
     filenames
 end
 
@@ -127,17 +121,11 @@ end
 Run sensing analysis on each dataset.
 Collects datasets in chunks by values of R to avoid overloading memory.
 """
-function produce_data(R::AbstractVector, Cₛ::AbstractVector)
-    for i in eachindex(R)
-        datasets = get_datasets_waitingtimes(R[i])
-        GC.gc()
-        pmap(sensing_from_waitingtimes, datasets)
-        datasets = nothing
-        GC.gc()
-    end
+function produce_data()
+    datasets = get_filelist_waitingtimes()
+    pmap(sensing_from_waitingtimes, datasets)
+    GC.gc()
 end
 
 ##
-f = jldopen(datadir("Poisson", "RC.jld2"))
-R, Cₛ = f["R"], f["Cₛ"]
-produce_data(R, Cₛ)
+produce_data()

@@ -1,57 +1,84 @@
-using DrWatson
-@quickactivate :GradientSensing
-using JLD2, DataFrames
-
-function sensing(R, Cₛ, params)
-    @unpack C₀, T, U, Δt, N = params
-    iter = Iterators.product(eachindex(R), eachindex(Cₛ)) |> collect
-    concentration = [empty([Float64(C₀)]) for _ in iter]
-    gradient = [empty([Float64(C₀/T)]) for _ in iter]
-    grids = [range(r,r,length=1) for r in R]
-    for itr in iter
-        i,j = itr # R, Cₛ
-        in_params = @strdict C₀ T U Δt N i j
-        in_params = Dict(keys(in_params) .=> ustrip.(values(in_params)))
-        dataset = jldopen(datadir("Poisson", savename("waitingtimes", in_params, "jld2")))
-        r = dataset["r"]
-        waiting_times = dataset["waiting_times"]
-        concentration[i,j] = zeros(typeof(C₀), length(r))
-        gradient[i,j] = zeros(typeof(C₀/T), length(r))
-        grids[i] = r
-        for k in eachindex(r)
-            # estimated concentration (Mora-Wingreen 2010 eq. S29)
-            n = mean(length.(waiting_times[k]))
-            concentration[i,j][k] = n/(4π*Dc*a*T*Unitful.Na) |> u"μM"
-            # estimated (temporal) gradient (Mora-Wingreen 2010 eq. S30)
-            # event times should be shifted in the [-T/2,T/2] interval
-            abstimes = cumsum.(waiting_times[k]) # event times in [0,T]
-            t_shifted = map(ts -> (T/2).-ts, abstimes) # event times in [-T/2,T/2]
-            t = mean(sum.(t_shifted))
-            gradient[i,j][k] = 12*t/(4π*Dc*a*T^3*Unitful.Na) |> u"μM/s"
-        end
-    end
-    grids, concentration, gradient
+##
+using Distributed
+@everywhere using DrWatson
+@everywhere @quickactivate :GradientSensing
+@everywhere begin
+    using JLD2, DataFrames, Unitful
 end
 
-function gradient_estimation()
-    f = jldopen(datadir("Poisson", "RL.jld2"))
-    R, Cₛ = f["R"], f["Cₛ"]
-    # parameters for the sensing process
-    C₀ = 1u"nM" # background concentration
-    T = 100u"ms" # sensory integration timescale
-    U = 46.5u"μm/s" # speed
-    Δt = 1e-4u"ms" # temporal resolution of the simulation
-    N = 100
-    unit_params = @strdict C₀ T U Δt N
-    params = Dict(keys(unit_params) .=> ustrip.(values(unit_params)))
+## aliases for brevity
+@everywhere begin
+    VVQ = AbstractVector{<:AbstractVector{<:Quantity}}
+    VVVQ = AbstractVector{<:AbstractVector{<:AbstractVector{<:Quantity}}}
+end
 
-    sensing_data = produce_or_load(
-        datadir("Poisson", "LinearRegression"), params;
-        prefix="sensing", suffix="jld2", tag=false
+##
+@everywhere function produce_data()
+    datasets = get_filelist_waitingtimes()
+    pmap(gradient_estimation, datasets)
+    GC.gc()
+end
+
+@everywhere function get_filelist_waitingtimes()
+    filenames = readdir(
+        datadir("Poisson"); # on local
+        #joinpath(ENV["SCRATCH"], "Poisson"); # on cluster
+        join = true
+    )
+    filter!(s -> contains(s, "waitingtimes"), filenames)
+    filenames
+end
+
+@everywhere function gradient_estimation(fname)
+    params = parse_savename(fname)[2]
+    produce_or_load(
+        datadir("Poisson", "LinearRegression"), params; # on local
+        #joinpath(ENV["SCRATCH"], "Poisson", "LinearRegression"), params; # on cluster
+        prefix="sensing", suffix="jld2", tag=false, loadfile=false
     ) do params
-        grids, concentration, gradient = sensing(R, L, unit_params)
-        @strdict grids concentration gradient
+        f = jldopen(fname, "r")
+        r = f["r"]
+        waitingtimes = f["waitingtimes"]
+        close(f)
+        Dc = params["Dc"]u"μm^2/s"
+        T = params["T"]u"ms"
+        N = params["N"]u"1"
+        grid, concentration, gradient = sensing(waitingtimes, r, T, Dc, N)
+        @strdict grid concentration gradient
     end
+    return nothing
 end
 
-gradient_estimation()
+@everywhere function sensing(waitingtimes::VVVQ, r, T, Dc, N)
+    l = minimum(length.(r))
+    grid = zeros(typeof(1.0u"μm"), l)
+    concentration = zeros(typeof(1.0u"μM"), l)
+    gradient = zeros(typeof(1.0u"μM/s"), l)
+    for i in eachindex(waitingtimes)
+        _r, _c, _g = sensing(waitingtimes[i], r[i], T, Dc)
+        grid .+= _r
+        concentration .+= _c
+        gradient .+= _g
+    end
+    grid ./= N
+    concentration ./= N
+    gradient ./= N
+    grid, concentration, gradient
+end
+
+@everywhere function sensing(waitingtimes::VVQ, r, T, Dc)
+    concentration = zeros(typeof(1.0u"μM"), length(r))
+    gradient = zeros(typeof(1.0u"μM/s"), length(r))
+    for k in eachindex(r)
+        n = length(waitingtimes[k])
+        concentration[k] = n / (4π*Dc*a*T*Unitful.Na) |> u"μM"
+        abstimes = cumsum(waitingtimes[k]) # event times in [0,T]
+        t_shifted = abstimes .- (T/2) # event times in [-T/2,+T/2]
+        t = sum(t_shifted)
+        gradient[k] = -12*t / (4π*Dc*a*T^3*Unitful.Na) |> u"μM/s"
+    end
+    r, concentration, gradient
+end
+
+##
+produce_data()

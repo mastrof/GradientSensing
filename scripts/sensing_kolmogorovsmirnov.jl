@@ -109,7 +109,8 @@ are saved to file (with suffix "sensing").
         GC.gc()
         # evaluate mean in each interval
         l = minimum(length.(ks))
-        ksavg = mean([k[1:l] for k in ks])
+        #ksavg = mean([k[1:l] for k in ks])
+        ksavg = mean([k[end-l+1:end] for k in ks])
         @strdict r ks ksavg
     end
     GC.gc()

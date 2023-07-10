@@ -56,9 +56,9 @@ end
     gradient = zeros(typeof(1.0u"μM/s"), l)
     for i in eachindex(waitingtimes)
         _r, _c, _g = sensing(waitingtimes[i], r[i], T, Dc)
-        grid .+= _r
-        concentration .+= _c
-        gradient .+= _g
+        grid .+= _r[end-l+1:end]
+        concentration .+= _c[end-l+1:end]
+        gradient .+= _g[end-l+1:end]
     end
     grid ./= N
     concentration ./= N

@@ -47,7 +47,7 @@ function phycosphere_kolmogorovsmirnov(df)
             :Cₛ => c -> c .== round(ustrip(Cₛ), sigdigits=3)
         ) |> first
         l = length(row.ksavg)
-        r = [collect(s[1:l]) for s in row.r]
+        r = [collect(s[end-l+1:end]) for s in row.r]
         mr = mean(r)
         S[i] = sensing_threshold(mr, row.ksavg, R)
     end

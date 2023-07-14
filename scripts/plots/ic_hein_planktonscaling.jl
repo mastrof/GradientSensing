@@ -12,13 +12,6 @@ set_theme!(Publication,
 )
 
 ##
-function makeplot(df, R, Cₛ)
-    
-
-    fig
-end
-
-##
 f = jldopen(datadir("HeinMod", "RC.jld2"), "r")
 R, Cₛ = ustrip.(f["R"]), ustrip.(f["Cₛ"])
 close(f)

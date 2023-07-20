@@ -27,6 +27,7 @@ function phycosphere_kolmogorovsmirnov()
             suffix = "jld2",
             tag = false,
             loadfile = false,
+            force = true
         ) do config
             S = phycosphere_kolmogorovsmirnov(df)
             @strdict S
@@ -58,15 +59,15 @@ end
     sensing_threshold(transect, sensing, R)
 Finds the first position along the transect where sensing
 (as defined by the average of the one-tailed KS test over independent samples)
-occurs with a probability greater than chance (>0.5).
+occurs with a probability greater than 0.68.
 
 The transect is in reverse order, i.e. it starts away from the source and
-moves towards it. If there is no position at which `sensing > 0.5`,
+moves towards it. If there is no position at which `sensing > 0.68`,
 then the function returns the radius of the source (`R`) itself,
 meaning that there is no distance at which sensing can occur consistently.
 """
 function sensing_threshold(grid, sensing, R)
-    idx = findfirst(sensing .> 0.5)
+    idx = findfirst(sensing .> 0.68)
     isnothing(idx) ? R : grid[idx]
 end
 

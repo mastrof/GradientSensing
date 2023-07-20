@@ -22,7 +22,7 @@ function ic_ks()
 
         produce_or_load(
             datadir("Poisson", "KolmogorovSmirnov"), params;
-            prefix="IC", suffix="jld2", tag=false
+            prefix="IC", suffix="jld2", tag=false, force=true
         ) do params
             ic = @. IC(λ, R, S)
             @strdict ic

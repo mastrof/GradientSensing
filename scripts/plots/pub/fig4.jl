@@ -4,11 +4,17 @@ using DrWatson
 using JLD2, DataFrames
 using CairoMakie
 using PublicationFiguresMakie
+arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
 set_theme!(Publication,
-    Axis=(
+    Axis = (
         xminorticksvisible=false, yminorticksvisible=false,
-        xtickcolor = :white, ytickcolor=:white,
-    )
+        xtickcolor = :white, ytickcolor = :white
+    ),
+    fonts = (
+        regular = "Arial",
+        bold = "Arial Bold",
+        italic = arial_italic,
+    ) 
 )
 
 
@@ -25,7 +31,7 @@ f = jldopen(datadir("Poisson", "RC.jld2"), "r")
 Rks, Cks = ustrip.(f["R"]), ustrip.(f["Cₛ"])
 close(f)
 datasets_ks = unpack_dataframe(
-    collect_results(datadir("Poisson", "KolmogorovSmirnov"); rinclude=[r"IC"])
+    collect_results(datadir("Poisson", "KolmogorovSmirnov"); rinclude=[r"twosampleIC"])
 )
 
 ## Initialize figure layout
@@ -36,14 +42,22 @@ pb = fig[1:2,2] = GridLayout()
 pc = fig[1:2,3] = GridLayout()
 
 ## Some global constants
-Rmin, Rmax = 0.1, 70.0
+Rmin, Rmax = 0.36, 70.0
 Cmin, Cmax = 1.5e-3, Cks[end]
 cmap = :viridis
 clims = (0, 3)
 clevels = range(clims...; step = 0.25)
 
-Ic_str = rich("I", subscript("c"))
-logIc_str = rich("log", subscript("10"), Ic_str)
+Ic_str = rich("I", subscript("c"); font=:italic)
+C_str = rich(rich("C", subscript("s"); font=:italic), " (μM)")
+R_str = rich(rich("R"; font=:italic), " (μm)")
+
+df_ref = subset(datasets_hein,
+    :Dc => Dc -> Dc .== 500,
+    :U => U -> U .== 50,
+    :T => T -> T .== 100,
+    :Π => Π -> Π .== 6
+)[1,:]
 
 ## Tall global colorbar on the right edge
 cb = Colorbar(fig[1:2,4],
@@ -51,7 +65,8 @@ cb = Colorbar(fig[1:2,4],
     colorrange = clims,
     ticks = 0:4,
     ticksvisible = false,
-    label = logIc_str,
+    tickformat = values -> [rich("10", superscript("$(Int(z))")) for z in values],
+    label = Ic_str,
     #height = 0.85*h
 )
 
@@ -105,7 +120,7 @@ ax_c2 = Axis(pc[2,1],
     xticks = [1, 3, 9, 27],
     yticks = [0.01, 0.1, 1],
     yticklabelsvisible = false,
-    xlabel = "R (μm)"
+    xlabel = R_str
 )
 xlims!(ax_c2, (Rmin, Rmax))
 ylims!(ax_c2, (Cmin, Cmax))
@@ -174,7 +189,7 @@ ax_b2 = Axis(pb[2,1],
     xticks = [1, 3, 9, 27],
     yticks = [0.01, 0.1, 1],
     yticklabelsvisible = false,
-    xlabel = "R (μm)"
+    xlabel = R_str
 )
 xlims!(ax_b2, (Rmin, Rmax))
 ylims!(ax_b2, (Cmin, Cmax))
@@ -216,7 +231,7 @@ ax_a1 = Axis(pa[1,1],
     xticks = [1, 3, 9, 27],
     yticks = [0.01, 0.1, 1],
     xticklabelsvisible = false,
-    ylabel = "Cₛ (μM)",
+    ylabel = C_str,
     #title = "T = 50 ms",
     title = "Short Sensory Timescale",
     titlefont = :bold
@@ -241,8 +256,8 @@ ax_a2 = Axis(pa[2,1],
     yscale = log10,
     xticks = [1, 3, 9, 27],
     yticks = [0.01, 0.1, 1],
-    xlabel = "R (μm)",
-    ylabel = "Cₛ (μM)"
+    xlabel = R_str,
+    ylabel = C_str
 )
 xlims!(ax_a2, (Rmin, Rmax))
 ylims!(ax_a2, (Cmin, Cmax))
@@ -259,6 +274,17 @@ contour!(ax_a2,
     color = :white
 )
 
+## Reference line in all panels
+for ax in (ax_a1, ax_a2, ax_b1, ax_b2, ax_c1, ax_c2)
+    contour!(ax,
+    R, Cₛ, log10.(df_ref.ic),
+    levels = [clevels[findfirst(clevels .> 0)]],
+    linewidth = 5,
+    linestyle = :dash,
+    color = :pink
+)
+
+end
 
 ##
 fig

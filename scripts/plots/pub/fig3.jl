@@ -3,12 +3,17 @@ using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames
 using CairoMakie
-using LaTeXStrings
 using PublicationFiguresMakie
+arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
 set_theme!(Publication,
-    Axis=(
+    Axis = (
         xminorticksvisible=false, yminorticksvisible=false,
-    )
+    ),
+    fonts = (
+        regular = "Arial",
+        bold = "Arial Bold",
+        italic = arial_italic,
+    ) 
 )
 
 
@@ -46,8 +51,10 @@ Rmin, Rmax = 0.5, 70.0
 Cmin, Cmax = 2e-3, 1.0
 
 ## Rich-text strings
-Ic_str = rich("I", subscript("c"))
-logIc_str = rich("log", subscript("10"), Ic_str)
+Ic_str = rich("I", subscript("c"); font=:italic)
+C_str = rich(rich("C", subscript("s"); font=:italic), " (μM)")
+R_str = rich(rich("R"; font=:italic), " (μm)")
+
 
 ## Initialize figure layout
 fig = Figure(resolution = TwoColumns(1.25))
@@ -63,7 +70,7 @@ labels = string.(round.(Rx, sigdigits=2))
 ax_b = Axis(pb[1,1],
     xscale = log10,
     yscale = log10,
-    xlabel = "Cₛ (μM)",
+    xlabel = C_str,
     ylabel = Ic_str,
     xticks = [0.01, 0.1, 1],
     yticks = [1, 10, 100]
@@ -74,7 +81,8 @@ series!(ax_b,
     linewidth = 9,
     labels = labels,
 )
-axislegend("R (μm)"; position=:lt)
+axislegend(ax_b; position=(0.02, 0))
+text!(ax_b, 0.04, 0.8; text=R_str, space=:relative)
 xlims!(ax_b, (Cmin, Cₛ[end]))
 ylims!(ax_b, (1, 100))
 
@@ -86,7 +94,7 @@ labels = string.(round.(Cx, sigdigits=2))
 ax_c = Axis(pc[1,1],
     xscale = log10,
     yscale = log10,
-    xlabel = "R (μm)",
+    xlabel = R_str,
     ylabel = Ic_str,
     xticks = [1, 3, 9, 27],
     yticks = [1, 10, 100]
@@ -97,15 +105,16 @@ series!(ax_c,
     linewidth = 9,
     labels = labels
 )
-axislegend("Cₛ (μM)"; position=:rt)
+axislegend(ax_c; position=(1, 0.2))
+text!(ax_c, 0.8, 0.72; text=C_str, space=:relative)
 xlims!(ax_c, (Rmin, Rmax))
 ylims!(ax_c, (1, 100))
 
 
 ## Panel A -- IC landscape
 ax_a = Axis(pa[1,1],
-    xlabel = "R (μm)",
-    ylabel = "Cₛ (μM)",
+    xlabel = R_str,
+    ylabel = C_str,
     xscale = log10,
     yscale = log10,
     xticks = [1, 3, 9, 27],
@@ -121,7 +130,8 @@ cb = Colorbar(pa[1,2],
     colorrange = clims,
     ticks = 0:4,
     ticksvisible = false,
-    label = logIc_str
+    tickformat = values -> [rich("10", superscript("$(Int(z))")) for z in values],
+    label = Ic_str
 )
 
 contourf!(ax_a,

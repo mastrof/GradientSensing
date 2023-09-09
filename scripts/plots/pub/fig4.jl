@@ -280,8 +280,7 @@ for ax in (ax_a1, ax_a2, ax_b1, ax_b2, ax_c1, ax_c2)
     R, Cₛ, log10.(df_ref.ic),
     levels = [clevels[findfirst(clevels .> 0)]],
     linewidth = 5,
-    linestyle = :dash,
-    color = :pink
+    color = RGBAf(1.0, 0.75, 0.8, 0.4)
 )
 
 end

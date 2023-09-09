@@ -121,7 +121,7 @@ ax_a = Axis(pa[1,1],
     yticks = [0.01, 0.1, 1]
 )
 
-clims = (0, 3)
+clims = (0, 2.5)
 clevels = range(clims...; step = 0.25)
 cmap = :viridis
 

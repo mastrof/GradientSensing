@@ -45,7 +45,7 @@ function encounter_times!(df, r, N, λ, U, T, PER; Dc=500, Π=6)
     U_units = U * 1u"μm/s"
     Cp_units = C.(r_units, L, 1u"nM", Dc_units)
     S = @. HeinModRadius(r_units, Cp_units, 1u"nM", T*1u"ms", Dc_units, U_units, Π) |> u"μm" |> ustrip
-    Ic = @. IC(λ, r, S)
+    Ic = @. IC(λ, r+ustrip(a), S+ustrip(a))
     newdf = DataFrame(
         U = U,
         T = T,
@@ -112,8 +112,8 @@ N = Dict(
     :productive => N_productive
 )
 prc = Dict(
-    :oligotrophic => [find_r_prc(N[:oligotrophic], r, p) for p in [0.95]],
-    :productive => [find_r_prc(N[:productive], r, p) for p in [0.95]]
+    :oligotrophic => [find_r_prc(N[:oligotrophic], r, p) for p in [0.95, 0.99]],
+    :productive => [find_r_prc(N[:productive], r, p) for p in [0.95, 0.99]]
 )
 
 ## evaluate times to encounters
@@ -192,8 +192,8 @@ text!(ax_oligo,
     align = (:left, :bottom)
 )
 text!(ax_oligo,
-    prc[:oligotrophic]*1.1, [1200];
-    text = ["95%"],
+    prc[:oligotrophic] .* [0.55, 1.05], [1300];
+    text = ["95%", "99%"],
     fontsize = 22,
     align = (:left, :center)
 )
@@ -255,8 +255,8 @@ text!(ax_prod,
     align = (:left, :bottom)
 )
 text!(ax_prod,
-    prc[:productive]*1.1, [1200];
-    text = ["95%"],
+    prc[:productive] .* [0.55, 1.05], [1300];
+    text = ["95%", "99%"],
     fontsize = 22,
     align = (:left, :center)
 )

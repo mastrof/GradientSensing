@@ -31,7 +31,7 @@ f = jldopen(datadir("Poisson", "RC.jld2"), "r")
 Rks, Cks = ustrip.(f["R"]), ustrip.(f["Cₛ"])
 close(f)
 datasets_ks = unpack_dataframe(
-    collect_results(datadir("Poisson", "KolmogorovSmirnov"); rinclude=[r"twosampleIC"])
+    collect_results(datadir("Poisson", "KolmogorovSmirnov"); rinclude=[r"IC"])
 )
 
 ## Initialize figure layout
@@ -45,7 +45,7 @@ pc = fig[1:2,3] = GridLayout()
 Rmin, Rmax = 0.36, 70.0
 Cmin, Cmax = 1.5e-3, Cks[end]
 cmap = :viridis
-clims = (0, 3)
+clims = (0, 2.5)
 clevels = range(clims...; step = 0.25)
 
 Ic_str = rich("I", subscript("c"); font=:italic)

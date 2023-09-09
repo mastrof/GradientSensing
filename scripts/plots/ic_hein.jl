@@ -14,7 +14,7 @@ set_theme!(Publication,
 
 ##
 function makeplot(datasets, R, Cₛ)
-    clims = (0, 4.5)
+    clims = (0, 3)
     clevels = range(clims..., step=0.25)
     cmap = :viridis
 

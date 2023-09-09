@@ -159,7 +159,7 @@ Dc = [500]u"μm^2/s" # molecular diffusivity of compound
 U = [50]u"μm/s" # speed
 C₀ = [1]u"nM" # background attractant concentration
 Δt = [1e-4]u"ms" # temporal resolution of the simulation
-N = [250] # number of repetitions for each sampling
+N = [500] # number of repetitions for each sampling
 
 allparams = @strdict R Cₛ T Dc U C₀ Δt N
 dicts = dict_list(allparams)

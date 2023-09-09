@@ -7,7 +7,8 @@
 /data
 /videos
 /oldplots
-# /plots
+/plots
+!/plots/pub
 /notebooks
 /_research
 

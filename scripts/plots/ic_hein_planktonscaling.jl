@@ -11,12 +11,11 @@ set_theme!(Publication,
     )
 )
 
-##
+## Load data
 f = jldopen(datadir("HeinMod", "RC.jld2"), "r")
 R, Cₛ = ustrip.(f["R"]), ustrip.(f["Cₛ"])
 close(f)
 
-##
 Ū = 50
 T̄ = 100
 D̄ = 500
@@ -32,7 +31,7 @@ df = subset(alldatasets,
     :Π => Π -> Π .== Π̄
 )[1,:]
 
-##
+## Phytoplankton scaling
 PER = [0.02, 0.1, 0.5]
 r = R[0.5 .< R .< 60]
 L = leakage_rate.(r .* 1u"μm", PER')

@@ -24,7 +24,7 @@ function ic_ks()
             datadir("Poisson", "KolmogorovSmirnov"), params;
             prefix="IC", suffix="jld2", tag=false, force=true
         ) do params
-            ic = @. IC(λ, R, S)
+            ic = @. IC(λ, R+a, S+a)
             @strdict ic
         end
     end

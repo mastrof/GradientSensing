@@ -33,7 +33,7 @@ function ic_hein()
             tag=false
         ) do params
             # evaluate chemotactic index for each (R,L) pair
-            ic = @. IC(λ,R,S)
+            ic = @. IC(λ,R+a,S+a)
             @strdict ic
         end
     end

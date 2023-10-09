@@ -361,7 +361,7 @@ Cp = ustrip.(Cp)
 Rmin, Rmax = r[1], r[end]
 Cmin, Cmax = 1.5e-3, 1.0
 cmap = :viridis
-clims = (0, 3)
+clims = (0, 2.5)
 clevels = range(clims...; step = 0.25)
 
 Ic_str = rich("I", subscript("c"); font=:italic)
@@ -388,7 +388,7 @@ ax = Axis(panela[1,1],
 )
 ylims!(Cmin, Cmax)
 xlims!(Rmin, Rmax)
-colgap!(panela, 10)
+#colgap!(panela, 10)
 
 ic = df.ic
 contourf!(ax, R, Cₛ, log10.(ic),

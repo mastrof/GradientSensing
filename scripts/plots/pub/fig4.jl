@@ -2,7 +2,7 @@
 using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames
-using CairoMakie
+using GLMakie
 using PublicationFiguresMakie
 arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
 set_theme!(Publication,

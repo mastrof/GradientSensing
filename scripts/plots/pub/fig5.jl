@@ -128,10 +128,11 @@ end
 
 ## Initialize figure layout
 fig = Figure(resolution = TwoColumns(1.2))
-panela = fig[1,1] = GridLayout()
-panelb = fig[2,1] = GridLayout()
-panelc = fig[1:2,2] = GridLayout()
-paneld = fig[1:2,3] = GridLayout()
+panela = fig[1:2,1] = GridLayout()
+panelb = fig[3:4,1] = GridLayout()
+panelc = fig[1:3,2] = GridLayout()
+paneld = fig[1:3,3] = GridLayout()
+cdlegend = fig[4,2:3]
 
 getrgb(c) = (c.r, c.g, c.b)
 alphaize(c, alpha) = RGBAf(getrgb(c)..., alpha)
@@ -148,7 +149,7 @@ ax_oligo = Axis(panelc[1,1];
     xticks = [1, 3, 9, 27],
     title = "Oligotrophic waters"
 )
-ylims!(ax_oligo, (5, 2e3))
+ylims!(ax_oligo, (8.5, 2e3))
 colors = palette(:Dark2_8, 8)[[1,3]]
 
 bandalpha = 0.35
@@ -173,15 +174,15 @@ end
 # random search times for reference
 Te_rnd_oligo = @. time_to_encounter(r, λ, Us, N[:oligotrophic]) / 3600
 lines!(ax_oligo, r, Te_rnd_oligo[:,1];
+    linestyle = :dash,
     linewidth = 3,
     color = alphaize(colors[1], 0.7),
 )
 lines!(ax_oligo, r, Te_rnd_oligo[:,2];
+    linestyle = :dash,
     linewidth = 3,
     color = alphaize(colors[2], 0.7),
 )
-
-axislegend(ax_oligo; position=:rb, patchsize=(50,20))
 
 hlines!(ax_oligo, [24, 24*7, 24*30]; linestyle = :dash, color = :black, label = false)
 vlines!(ax_oligo, prc[:oligotrophic]; linestyle = :dot, color = :black, label = false)
@@ -209,42 +210,46 @@ ax_prod = Axis(paneld[1,1];
     yticks = exp10.(0:3),
     yticklabelsvisible = false,
     xticks = [1, 3, 9, 27],
-    title = "Productive waters" 
+    title = "Productive waters"
 )
-ylims!(ax_prod, (5, 2e3))
+ylims!(ax_prod, (8.5, 2e3))
 colors = palette(:Dark2_8, 8)[[1,3]]
 
 bandalpha = 0.35
 curvelab(U,T) = rich(rich("U";font=:italic), "=$(Int(U))μm/s, ", rich("T";font=:italic), "=$(Int(T))ms")
 labs = @. curvelab(Us, Ts)
 
+tactic = []
+tacticbands = []
 for (i,g) in enumerate(gdf[:productive])
     t_low = g[g.PER .== PER[1], :Te][1]
     t_mid = g[g.PER .== PER[2], :Te][1]
     t_hi = g[g.PER .== PER[3], :Te][1]
     craw = colors[i]
     c = alphaize(craw, bandalpha)
-    band!(ax_prod, r, t_low, t_hi; color = c)
-    scatterlines!(ax_prod, r, t_mid; color = craw,
+    s = band!(ax_prod, r, t_low, t_hi; color = c)
+    push!(tacticbands, s)
+    s = scatterlines!(ax_prod, r, t_mid; color = craw,
         linewidth = 8,
         markersize = 24,
         marker = i == 1 ? :circle : :rect,
         label = labs[:,i]
     )
+    push!(tactic, s)
 end
 
 # random search times for reference
 Te_rnd_prod = @. time_to_encounter(r, λ, Us, N[:productive]) / 3600
-lines!(ax_prod, r, Te_rnd_prod[:,1];
+random_1 = lines!(ax_prod, r, Te_rnd_prod[:,1];
+    linestyle = :dash,
     linewidth = 3,
     color = alphaize(colors[1], 0.7),
 )
-lines!(ax_prod, r, Te_rnd_prod[:,2];
+random_2 = lines!(ax_prod, r, Te_rnd_prod[:,2];
+    linestyle = :dash,
     linewidth = 3,
     color = alphaize(colors[2], 0.7),
 )
-
-axislegend(ax_prod; position=:rb, patchsize=(50,20))
 
 hlines!(ax_prod, [24, 24*7, 24*30]; linestyle = :dash, color = :black, label = false)
 vlines!(ax_prod, prc[:productive]; linestyle = :dot, color = :black, label = false)
@@ -259,6 +264,24 @@ text!(ax_prod,
     text = ["95%", "99%"],
     fontsize = 22,
     align = (:left, :center)
+)
+
+# legend for panels C and D
+legendlabels = [
+    "Random encounters (PER = 0%)",
+    "Chemotactic encounters (PER = 20%)",
+    "Chemotactic encounters (2% < PER < 50%)"
+]
+Legend(cdlegend,
+    [random_1, tactic[1], tacticbands[1], random_2, tactic[2], tacticbands[2]],
+    repeat(legendlabels, 2),
+    patchsize = (50,25),
+    nbanks = 3,
+    orientation = :horizontal,
+    colgap = 24,
+    rowgap = 6,
+    valign = :bottom,
+    margin = (0, 0, -10, 0)
 )
 
 
@@ -366,7 +389,7 @@ clevels = range(clims...; step = 0.25)
 
 Ic_str = rich("I", subscript("c"); font=:italic)
 
-## 
+##
 cb = Colorbar(panela[1,2],
     colormap = cgrad(cmap, length(clevels)-1; categorical=true),
     colorrange = clims,

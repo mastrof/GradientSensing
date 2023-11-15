@@ -22,9 +22,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="pt"
-     inkscape:zoom="0.5299754"
-     inkscape:cx="722.67505"
-     inkscape:cy="406.62265"
+     inkscape:zoom="0.72841799"
+     inkscape:cx="752.31531"
+     inkscape:cy="218.96768"
      inkscape:window-width="1920"
      inkscape:window-height="1200"
      inkscape:window-x="0"
@@ -9564,5 +9564,44 @@
          style="font-weight:bold;font-size:28px;fill:#000000;stroke-width:4.49858"
          x="871.29688"
          y="28.463051">D</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;line-height:0.8;font-family:Arial;-inkscape-font-specification:Arial;fill:#f87dae;fill-opacity:1;stroke-width:4.49858;stroke-linecap:square"
+       x="86.50396"
+       y="237.26392"
+       id="text1"
+       transform="rotate(-25.02304)"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-size:16px;fill:#f87dae;fill-opacity:1;stroke-width:4.49858"
+         x="86.50396"
+         y="237.26392">PER = 2%</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;line-height:0.8;font-family:Arial;-inkscape-font-specification:Arial;fill:#f87dae;fill-opacity:1;stroke-width:4.49858;stroke-linecap:square"
+       x="150.21155"
+       y="184.1454"
+       id="text1-3"
+       transform="rotate(-25.02304)"><tspan
+         sodipodi:role="line"
+         id="tspan1-6"
+         style="font-size:16px;fill:#f87dae;fill-opacity:1;stroke-width:4.49858"
+         x="150.21155"
+         y="184.1454">PER = 10%</tspan></text>
+    <g
+       id="g1"
+       transform="rotate(-25.02304,24.471292,297.47664)">
+      <text
+         xml:space="preserve"
+         style="font-size:16px;line-height:0.8;font-family:Arial;-inkscape-font-specification:Arial;fill:#f87dae;fill-opacity:1;stroke-width:4.49858;stroke-linecap:square"
+         x="176.72266"
+         y="173.20312"
+         id="text1-7"><tspan
+           sodipodi:role="line"
+           id="tspan1-5"
+           style="font-size:16px;fill:#f87dae;fill-opacity:1;stroke-width:4.49858"
+           x="176.72266"
+           y="173.20312">PER = 50%</tspan></text>
+    </g>
   </g>
 </svg>

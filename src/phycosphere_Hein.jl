@@ -1,4 +1,4 @@
-export HeinRadius, HeinModRadius, HeinFDRadius
+export HeinRadius, HeinModRadius, HeinFDRadius, HeinRFRadius
 
 """
     HeinRadius(R, L, C₀, T, Dc, U, Π; q=1)
@@ -94,6 +94,7 @@ end
 
 @inline modulator(x) = 1 - exp(-x)
 @inline fp(x) = min((x / 2)^1, 1.0)
+@inline rf(x) = sqrt(1 + 3/20 * x^2)
 
 """
     HeinFDRadius(R, Cₛ, C₀, T, Dc, U, Π; q=1)
@@ -108,6 +109,22 @@ function HeinFDRadius(R, Cₛ::Quantity{<:Real,𝐍 / 𝐋^3}, C₀, T, Dc, U, �
         find_zero(f, 2R, Order16(); xatol=1e-16u"μm")
     catch e
         #println(e)
+        R
+    end
+    h > R ? h : R
+end
+
+"""
+    HeinRFRadius(R, Cₛ, C₀, T, Dc, U, Π; q=1)
+Find the distance from the source at which the SNR, with the noise estimated
+assuming a 2nd order expansion of the concentration field.
+"""
+function HeinRFRadius(R, Cₛ::Quantity{<:Real,𝐍/𝐋^3}, C₀, T, Dc, U, Π; q=1)
+    λ = U * T
+    f(r) = snr(r, R, Cₛ, C₀, T, Dc, U, Π) / rf(λ/r) - q
+    h = try
+        find_zero(f, R, Order0(); atol=1e-3u"μm")
+    catch e
         R
     end
     h > R ? h : R

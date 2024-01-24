@@ -17,6 +17,11 @@ set_theme!(Publication,
     ) 
 )
 
+function wsmooth(x)
+    w = [1 1 1; 1 4 1; 1 1 1]
+    replacenans(y) = [isnan(z) ? zero(z) : z for z in y]
+    mapwindow(y -> mean(replacenans(y) .* w), x, (3,3))
+end
 
 ## Load data
 f = jldopen(datadir("HeinMod", "RC.jld2"), "r")
@@ -42,7 +47,7 @@ pb = fig[1:2,2] = GridLayout()
 pc = fig[1:2,3] = GridLayout()
 
 ## Some global constants
-Rmin, Rmax = 0.36, 70.0
+Rmin, Rmax = 0.36, 45.0
 Cmin, Cmax = 1.5e-3, Cks[end]
 cmap = :viridis
 clims = (0, 2.5)
@@ -125,10 +130,11 @@ ax_c2 = Axis(pc[2,1],
 xlims!(ax_c2, (Rmin, Rmax))
 ylims!(ax_c2, (Cmin, Cmax))
 
-heatmap!(ax_c2,
-    Rks, Cks, log10.(df_ks.ic),
+contourf!(ax_c2,
+    Rks, Cks, log10.(wsmooth(df_ks.ic)),
     colormap = cmap,
     colorrange = clims,
+    levels = clevels
 )
 contour!(ax_c2,
     R, Cₛ, log10.(df_hein.ic),
@@ -194,10 +200,11 @@ ax_b2 = Axis(pb[2,1],
 xlims!(ax_b2, (Rmin, Rmax))
 ylims!(ax_b2, (Cmin, Cmax))
 
-heatmap!(ax_b2,
-    Rks, Cks, log10.(df_ks.ic),
+contourf!(ax_b2,
+    Rks, Cks, log10.(wsmooth(df_ks.ic)),
     colormap = cmap,
     colorrange = clims,
+    levels = clevels
 )
 contour!(ax_b2,
     R, Cₛ, log10.(df_hein.ic),
@@ -262,10 +269,11 @@ ax_a2 = Axis(pa[2,1],
 xlims!(ax_a2, (Rmin, Rmax))
 ylims!(ax_a2, (Cmin, Cmax))
 
-heatmap!(ax_a2,
-    Rks, Cks, log10.(df_ks.ic),
+contourf!(ax_a2,
+    Rks, Cks, log10.(wsmooth(df_ks.ic)),
     colormap = cmap,
     colorrange = clims,
+    levels = clevels
 )
 contour!(ax_a2,
     R, Cₛ, log10.(df_hein.ic),
@@ -284,6 +292,9 @@ for ax in (ax_a1, ax_a2, ax_b1, ax_b2, ax_c1, ax_c2)
 )
 
 end
+
+## Slightly increase column gap
+colgap!(fig.layout, Relative(0.03))
 
 ##
 fig

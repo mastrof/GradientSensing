@@ -23,16 +23,28 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="pt"
      inkscape:zoom="0.74677393"
-     inkscape:cx="782.70006"
-     inkscape:cy="346.15563"
+     inkscape:cx="855.68065"
+     inkscape:cy="445.24854"
      inkscape:window-width="1920"
      inkscape:window-height="1200"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1271" />
+     inkscape:current-layer="surface1-3mNEXZ/m" />
   <defs
      id="defs511">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect516"
+       is_visible="true"
+       lpeversion="1.3"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false"
+       uniform="false" />
     <g
        id="g469">
       <symbol
@@ -4726,57 +4738,12 @@
     </g>
     <g
        style="fill:#000000;fill-opacity:1"
-       id="g600">
-      <use
-         xlink:href="#glyph11-1-3mNEXZ/m"
-         x="789.17877"
-         y="260.15128"
-         id="use599" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
        id="g601">
       <use
          xlink:href="#glyph11-2-3mNEXZ/m"
          x="798.35529"
          y="260.15128"
          id="use600" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g602">
-      <use
-         xlink:href="#glyph12-1-3mNEXZ/m"
-         x="802.93958"
-         y="260.15128"
-         id="use601" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g603">
-      <use
-         xlink:href="#glyph12-2-3mNEXZ/m"
-         x="812.11603"
-         y="260.15128"
-         id="use602" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g604">
-      <use
-         xlink:href="#glyph13-1-3mNEXZ/m"
-         x="821.29254"
-         y="260.15128"
-         id="use603" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g605">
-      <use
-         xlink:href="#glyph14-1-3mNEXZ/m"
-         x="789.17877"
-         y="159.66364"
-         id="use604" />
     </g>
     <g
        style="fill:#000000;fill-opacity:1"
@@ -4789,51 +4756,6 @@
     </g>
     <g
        style="fill:#000000;fill-opacity:1"
-       id="g607">
-      <use
-         xlink:href="#glyph15-1-3mNEXZ/m"
-         x="802.93958"
-         y="159.66364"
-         id="use606" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g608">
-      <use
-         xlink:href="#glyph16-1-3mNEXZ/m"
-         x="814.85529"
-         y="159.66364"
-         id="use607" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g609">
-      <use
-         xlink:href="#glyph14-3-3mNEXZ/m"
-         x="824.03186"
-         y="159.66364"
-         id="use608" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g610">
-      <use
-         xlink:href="#glyph14-4-3mNEXZ/m"
-         x="833.20837"
-         y="159.66364"
-         id="use609" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g611">
-      <use
-         xlink:href="#glyph17-1-3mNEXZ/m"
-         x="549.4563"
-         y="84.511971"
-         id="use610" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
        id="g612">
       <use
          xlink:href="#glyph18-1-3mNEXZ/m"
@@ -4842,49 +4764,160 @@
          id="use611" />
     </g>
     <g
-       style="fill:#000000;fill-opacity:1"
-       id="g613">
-      <use
-         xlink:href="#glyph18-2-3mNEXZ/m"
-         x="563.21704"
-         y="84.511971"
-         id="use612" />
+       id="g3"
+       transform="translate(18.281979)">
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g600"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph11-1-3mNEXZ/m"
+           x="789.17877"
+           y="260.15128"
+           id="use599" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g602"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph12-1-3mNEXZ/m"
+           x="802.93958"
+           y="260.15128"
+           id="use601" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g603"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph12-2-3mNEXZ/m"
+           x="812.11603"
+           y="260.15128"
+           id="use602" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g604"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph13-1-3mNEXZ/m"
+           x="821.29254"
+           y="260.15128"
+           id="use603" />
+      </g>
     </g>
     <g
-       style="fill:#000000;fill-opacity:1"
-       id="g614">
-      <use
-         xlink:href="#glyph17-2-3mNEXZ/m"
-         x="576.96167"
-         y="84.511971"
-         id="use613" />
+       id="g2"
+       transform="translate(6.2880218)">
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g605"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph14-1-3mNEXZ/m"
+           x="789.17877"
+           y="159.66364"
+           id="use604" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g607"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph15-1-3mNEXZ/m"
+           x="802.93958"
+           y="159.66364"
+           id="use606" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g608"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph16-1-3mNEXZ/m"
+           x="814.85529"
+           y="159.66364"
+           id="use607" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g609"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph14-3-3mNEXZ/m"
+           x="824.03186"
+           y="159.66364"
+           id="use608" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g610"
+         transform="translate(4.5,19.5)">
+        <use
+           xlink:href="#glyph14-4-3mNEXZ/m"
+           x="833.20837"
+           y="159.66364"
+           id="use609" />
+      </g>
     </g>
     <g
-       style="fill:#000000;fill-opacity:1"
-       id="g615">
-      <use
-         xlink:href="#glyph17-3-3mNEXZ/m"
-         x="586.13818"
-         y="84.511971"
-         id="use614" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g616">
-      <use
-         xlink:href="#glyph19-1-3mNEXZ/m"
-         x="595.3147"
-         y="84.511971"
-         id="use615" />
-    </g>
-    <g
-       style="fill:#000000;fill-opacity:1"
-       id="g617">
-      <use
-         xlink:href="#glyph20-1-3mNEXZ/m"
-         x="599.89893"
-         y="84.511971"
-         id="use616" />
+       id="g1"
+       transform="translate(244.22247,19.5)">
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g611">
+        <use
+           xlink:href="#glyph17-1-3mNEXZ/m"
+           x="549.4563"
+           y="84.511971"
+           id="use610" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g613">
+        <use
+           xlink:href="#glyph18-2-3mNEXZ/m"
+           x="563.21704"
+           y="84.511971"
+           id="use612" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g614">
+        <use
+           xlink:href="#glyph17-2-3mNEXZ/m"
+           x="576.96167"
+           y="84.511971"
+           id="use613" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g615">
+        <use
+           xlink:href="#glyph17-3-3mNEXZ/m"
+           x="586.13818"
+           y="84.511971"
+           id="use614" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g616">
+        <use
+           xlink:href="#glyph19-1-3mNEXZ/m"
+           x="595.3147"
+           y="84.511971"
+           id="use615" />
+      </g>
+      <g
+         style="fill:#000000;fill-opacity:1"
+         id="g617">
+        <use
+           xlink:href="#glyph20-1-3mNEXZ/m"
+           x="599.89893"
+           y="84.511971"
+           id="use616" />
+      </g>
     </g>
     <g
        style="fill:#000000;fill-opacity:1"
@@ -10064,6 +10097,12 @@
        d="M 485,227.5 V 46.5"
        transform="scale(0.75)"
        id="path1271" />
+    <path
+       style="fill:#000000;stroke-width:0.8;paint-order:fill markers stroke;stroke-dasharray:0.80000001,1.60000003;stroke:#000000;stroke-opacity:1;stroke-dashoffset:0"
+       d="m 295.875,338.17187 c 28.875,0 57.75,0 86.625,0"
+       id="path516"
+       inkscape:path-effect="#path-effect516"
+       inkscape:original-d="m 295.875,338.17187 c 28.875,0 57.75,0 86.625,0" />
   </g>
   <text
      xml:space="preserve"

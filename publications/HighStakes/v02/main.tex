@@ -17,7 +17,9 @@
 
 \title{
 %Chemotactic encounters between bacteria and phytoplankton -- outsized payoffs for small phytoplankton cells
-Chemotactic encounters between bacteria and phytoplankton -- the stakes are high for encounters with small phytoplankton.
+%Chemotactic encounters between bacteria and phytoplankton -- the stakes are high for encounters with small phytoplankton.
+%The stakes are high for chemotactic encounters between bacteria and small phytoplankton.
+Chemotactic encounters between bacteria and small phytoplankton are a high-stakes game.
 }
 % DB: I would consider substituting one instance of "encounter" with a different word. For example, replace the first casee with "interactions".
 
@@ -61,7 +63,8 @@ Detection fails when gradients are too flat (large phytoplankton) or too spatial
 %Chemotaxis, the ability to navigate chemical gradients, enables motile bacteria to increase encounter rates with phytoplankton cells, favoring microscale interactions.
 Chemotaxis, the ability to navigate chemical gradients, enables motile bacteria to increase encounter rates with phytoplankton cells.
 %However, it remains unclear how strongly the performance of chemotactic searches, which relies on the detection of noisy and spatially confined gradients around phytoplankton of different sizes, depends on the bacterial search strategies.
-However, it is unclear how the detection of noisy and spatially confined gradients around phytoplankton of different sizes depends on bacterial phenotypes, and how strongly the ensuing chemotactic behavior enhances encounters.
+%However, it is unclear how the detection of noisy and spatially confined gradients around phytoplankton of different sizes depends on bacterial phenotypes, and how strongly the ensuing chemotactic behavior enhances encounters.
+However, it is unclear how strongly the increase in encounter rates depends on the detection of noisy and spatially confined gradients around phytoplankton of different sizes.
 %However, it remains unclear how strongly chemotactic encounters depend on the bacterial strategy employed to detect noisy and spatially confined gradients around phytoplankton of different sizes.
 %the bacterial strategy to detect noisy and spatially confined gradients controls encounters with different phytoplankton size classes. 
 %However, how strongly the bacterial strategy to detect noisy and spatially confined gradients around phytoplankton of different sizes controls encounters remains unclear.
@@ -70,7 +73,8 @@ However, it is unclear how the detection of noisy and spatially confined gradien
 Here, we compute an upper bound on the chemotactic index, a dimensionless number that measures the increase in encounter rate with a phytoplankton cell due to chemotaxis over random motility alone.
 %We study how the chemotactic index depends on phytoplankton's size, the concentration and diffusivity of the chemoattractant, and the bacterium's swimming speed, run length, and sensory timescale.
 %We find that chemotaxis potentially strongly favors searches for small phytoplankton, owing to the ballistic nature of the encounter for those cells, but the magnitude of the chemotactic index is very sensitive to the concentration and diffusivity of the chemoattractant, and the bacterium's swimming speed, run length, and sensory timescale. 
-We find that chemotaxis can strongly enhance the efficiency of searches for small phytoplankton, owing to the ballistic nature of encounters for those cells, but the chemotactic index, determined by the bacterial ability to resolve spatially confined gradients, is extremely sensitive to phytoplankton and bacterial phenotypes.
+%We find that chemotaxis can strongly enhance the efficiency of searches for small phytoplankton, owing to the ballistic nature of encounters for those cells, but the chemotactic index, determined by the bacterial ability to resolve spatially confined gradients, is extremely sensitive to phytoplankton and bacterial phenotypes.
+We find that chemotaxis can substantially speed up the search for small phytoplankton, owing to the ballistic nature of encounters for those cells. However, the chemotactic index is very sensitive to cells' phenotypes because spatially confined gradients around small phytoplankton limit the bacterial ability to resolve them.
 %We find that chemotaxis can strongly enhance the efficiency of searches for small phytoplankton, owing to the ballistic nature of the encounter for those cells, but the chemotactic index is sensitive to phytoplankton leakage and bacterial motility, which limit the ability of bacteria to resolve spatially confined gradients.
 %the bacterial ability to detect spatially confined gradients.
 In productive waters, chemotaxis can decrease the search times of bacteria for micron-sized picophytoplankton up to ten-fold, from days to a few hours; but an increase in swimming speed or a slight reduction in phytoplankton size or leakage rate may render gradients undetectable, easily erasing this benefit.
@@ -78,7 +82,8 @@ In productive waters, chemotaxis can decrease the search times of bacteria for m
 %Still, this reduction relies sensitively on the ability of bacteria to detect gradients -- reducing by half the phytoplankton radius or doubling the bacterial swimming speed can render gradients undetectable and erase the benefit of chemotaxis.
 %Still, this benefit of chemotaxis is easily erased --- reducing by half the phytoplankton radius or doubling the bacterial swimming speed renders gradients undetectable.
 %For larger phytoplankton, with radii above 10 micron, the decrease in search time is more moderate, from a month to a week, and depends gently on gradient detection abilities.
-For larger phytoplankton, above 10 micron in size, the decrease in search time is more moderate, from a month to a week, but, depending gently on gradient detection abilities, it is more robust to variations.
+%For larger phytoplankton ($>\SI{10}{\micro\m}$), the decrease in search time is more moderate, from a month to a week, but, depending gently on gradient detection abilities, it is more robust to variations.
+By contrast, for larger phytoplankton ($>\SI{10}{\micro\m}$), while the decrease in search time is more moderate, from a month to a week, it is more robust to variations because it depends gently on gradient detection abilities.
 Thus, engaging chemotaxis in interactions with small phytoplankton is a high-stakes game for bacteria: the potential payoff is large, but it changes abruptly with bacterial ability to sense gradients, a scenario that may promote a diversity of chemotactic strategies.
 %Chemotaxis, the ability to sense and navigate along chemical gradients, enables motile bacteria to increase encounters with targets, including nutrient sources and symbiotic partners such as phytoplankton cells, which leak chemoattractants that bacteria use as navigational cues. 
 %However, we lack quantitative estimates of the potential increase in chemotaxis-assisted encounters compared to random motility. Here, we use analytical and numerical models to compute an upper bound on the chemotactic index, a dimensionless number that measures the increase in encounter rate with a target due to chemotaxis, over random motility alone. We consider an idealized chemotactic bacterium that always finds a spherical target, provided it successfully detects chemical gradients at some distance away from the target. The detection fails, however, if the gradients are too shallow or too spatially confined. We derive a general equation that predicts how the chemotactic index depends on the target's size, the concentration and diffusivity of the chemoattractant, and the bacterium's swimming speed, run length, and sensory timescale. We find that chemotaxis confers the most prominent advantage for small targets, owing to the ballistic nature of the encounter for those targets. For example, chemotaxis can decrease search times of bacteria for phytoplankton by an order of magnitude for .... The typical search times for picocyanobacteria, the smallest yet most abundant phytoplankton cells in the oceans, can decrease from multiple days to a few hours, provided that bacteria move slower and measure gradients more accurately. 
@@ -114,7 +119,7 @@ Here we investigate, through the lens of encounter rates, how chemotaxis can inc
     \includegraphics[width=11.4cm]{fig1_new.pdf}
     \caption{
         \textbf{
-        Detecting chemical gradients to increase encounter rates with phytoplankton through chemotaxis is a size-dependent challenge for bacteria.
+        Detecting chemical gradients to increase encounter rates with phytoplankton is a size-dependent challenge for bacteria.
         }
         To estimate the local concentration gradient, the bacterial chemosensory machinery integrates absorption sequences of chemoattractant molecules over a characteristic sensory timescale $T$.
         The phytoplankton size determines the lengthscale over which the gradients extend, leading to absorption sequences with well-distinguished features for small and large sources.
@@ -141,7 +146,7 @@ To study how the phytoplankton size and the associated sensing limitations affec
         \textbf{
         Chemotactic encounters are limited by the gradients' steepness and spatial extent, and ballistic or diffusive encounters with the sensing horizon.
         }
-        (A) A phytoplankton cell of radius $R$ produces a stationary diffusive field of a chemoattractant, $C(r) = C_0 + C_s R/r$ (represented by the green halo).
+        (A) A phytoplankton cell of radius $R$ produces a stationary diffusive field of a chemoattractant, $C(r) = C_0 + C_s R/r$ (\autoref{eq:chemoattractant_field}, represented by the green halo).
         Far away from the cell, bacteria cannot sense the chemoattractant and thus swim in random walks, with correlation length $\lambda$.
         The ``sensory distance'' $S$ is the distance from the phytoplankton cell at which a perfect chemotaxer would be able to detect the gradient and encounter its target with a 100\% probability.
         (Inset) Chemosensing is a molecule-counting process based on encounters between the bacterium and individual chemoattractant molecules.
@@ -186,10 +191,9 @@ Since a second-order expansion is not sufficient to fully represent the non-line
 Further, following Brumley \textit{et al.}~\cite{brumley2019bacteria}, we introduce a chemotactic precision factor $\Pi$ in front of the Mora-Wingreen noise $\sigma = \Pi\sigma_0$, which in marine bacterium \textit{Vibrio anguillarum} was estimated as $\Pi\approx6$.
 We then define the sensory horizon $S$ as the farthest distance from the phytoplankton cell at which the $\SNR$ overcomes a threshold $q$; mathematically, $S$ is therefore the solution to the equation
 \begin{equation}\label{eq:snr}
-  \SNR = \dfrac{|U\nabla C_{(S)}|f(UT/S)}{\Pi\sigma_{(S)}} =
-    \dfrac{|U\nabla C_{(S)}|f(UT/S)}{6\sqrt{\dfrac{3C_{(S)}}{\pi a D_c T^3}}} = q
+  \SNR = \dfrac{|U\nabla C_{(S)}|f(UT/S)}{\Pi\sigma_{(S)}} = q
 \end{equation}
-which can be solved numerically for any given set of parameters.
+which can be solved numerically for any given set of parameters (SI).
 A reasonable choice for the threshold is $q=1$, which equates to defining $S$ as the distance where bacteria can detect a positive gradient with a probability $\approx 84\%$ (SI).
 For any given phytoplankton size and excess concentration, we can then determine whether a sensory horizon exists (i.e., if, for the given parameters, there is a distance $S>R$ at which the $\SNR$ overcomes the threshold), and thus gradient detection is possible, or if gradients are not detectable (\autoref{fig:sensing}B).
 Independently of the details of the signal processing mechanism and of the specific form of the concentration field, the two limiting factors of gradient steepness and spatial confinement, as described by the inherent and dynamic noise respectively, define a convex region where gradients can be detected.
@@ -295,7 +299,6 @@ This fact highlights how the detection limits evaluated for bacterial chemosensi
         (B) Marine phytoplankton communities are dominated by small cells. The size structure follows a power-law distribution, where the abundance $N$ decreases with increasing size $R$ as $N(R) \propto R^{-3\alpha}$.
         The allometric exponent is larger in oligotrophic waters ($\alpha\simeq 0.9$) than in more productive waters ($\alpha\simeq 0.75$). Both  communities are normalized to a total cell abundance of \SI{1e5}{cells/\milli\liter}.
         Inset: difference between cell abundance in oligotrophic and productive waters.
-        % DB: I suggest putting a dashed line for the zero value in the inset figure.
         (C-D) Comparison of search times between random motility and chemotaxis.
         Carbon-size scaling, phytoplankton community structure and chemotactic index jointly define the average search time ($T_e$) (\autoref{eq:search_time}) an individual bacterium requires to encounter a phytoplankton cell using chemotaxis.
         The thin broken lines represent the search times in the absence of chemotaxis ($I_c=1$).
@@ -303,7 +306,6 @@ This fact highlights how the detection limits evaluated for bacterial chemosensi
         The two curves correspond to distinct chemotactic strategies: in green with circle markers, a strategy with low speed and long sensory timescale; in violet with square markers, a strategy with high swimming speed and short sensory timescale.
         The vertical dotted lines mark the radii corresponding to the 95\textsuperscript{th} and 99\textsuperscript{th} percentiles of the phytoplankton community abundance.
         {\color{magenta}A web app/notebook to interactively evaluate the search times for any set of parameters and community structures is freely available here: XXX.}
-        % DB: Is it possible to move the "1 month" label to the right hand side of panel C, in keeping with the other labels?
     }
     \label{fig:ecology}
 \end{figure*}
@@ -340,7 +342,7 @@ We must also note that the boost in chemotactic performance towards small cells 
 
 %% Speculatory paragraph on evolutionary games - mention the growth return part of the game
 The chemotactic encounter problem can be seen as an evolutionary game with a strongly asymmetric fitness function.
-Interpreting $I_c$ as a measure of the maximum possible fitness attainable by a bacterium, our results show that a perfect chemotaxer obtains large fitness benefits in the search for small phytoplankton cells, but relatively small ones when searching for large cells~(\autoref{fig:asymmetric-performance}). 
+Interpreting $I_c$ as a measure of the maximum possible fitness attainable by a bacterium, our results show that a perfect chemotaxer obtains large fitness benefits in the search for small phytoplankton cells, but relatively small ones when searching for large cells (\autoref{fig:asymmetric-performance}). 
 We must keep in mind, however, that the encounter is only the initiating step of a possibly multi-stage interaction process and that fitness is determined by the ability to grow and reproduce.
 To obtain a more complete eco-evolutionary picture, one would need to simultaneously consider the search time and the growth return associated with phytoplankton cells of different sizes.
 In fact, chemotaxis is expected to not only reduce search times but also improve the growth returns, allowing bacteria to remain near local maxima of chemoattractants even without a direct encounter~\cite{fernandez2019foraging}.
@@ -349,11 +351,10 @@ Generally, it can be expected that larger sources, while offering less drastic e
 
 Our results show that the limits of the chemotactic sensing of small phytoplankton cells are sensitive to the details of the sensing mechanism. Almost 40 years ago, Jackson concluded that the gradients around small prokaryotic cells could not be sensed by a swimming bacterium~\cite{jackson1987simulating}. Modern experimental efforts, such as the aforementioned \textit{Marinobacter adhaerens}--\textit{Synechococcus} interaction~\cite{raina2023chemotaxis}, or the recent investigation of the chemotactic response of marine heterotrophic bacteria to the exudates of virus-infected \textit{Synechococcus} extending to distances larger than \SI{100}{\micro\m}~\cite{henshaw2023early}, strongly suggest that the limit calculated by Jackson is not universal~\cite{seymour2024swimming}. Our results confirm that micron-sized targets are, in principle, detectable, and thus chemotaxis can significantly reduce the search time in that size range~(\autoref{fig:ecology}). However, the exact position of the detection boundary is very sensitive to a large variety of parameters, such as swimming speed, size, leakage rates, molecular diffusivity, sensory timescales and chemotactic sensitivity~(\autoref{fig:strategies}). Consequently, while chemotaxis may be more pervasive than previously thought~\cite{seymour2024swimming}, outstanding questions related to its operational limits or its benefit to cell growth may need to be answered individually for each specific system. This sensitivity, combined with the high-stakes nature of the search problem, may, in turn, drive a diversity of chemotactic strategies.
 
-%, while chemotaxis may be more pervasive than previously thought, outstanding questions related to its operational limits or its benefit to cell growth, may need to be answered individually for each specific system.
 
 More work is needed to evaluate how close to the predicted idealized chemotactic performance bacteria can operate. Agent-based simulations of bacterial chemotaxis towards leaky phytoplankton cells could help establish the distance to the idealized limit as a function of chemotactic strategy. Our work indicates that optimal strategies may depend on the phytoplankton cell size --- strategies that work well for large cells will likely underperform for small ones and vice versa~(\autoref{fig:ecology}). Moreover, experiments designed to assess how far from a phytoplankton cell chemoattractants can be detected could aid in providing a stronger connection between the mathematical notion of ``sensory horizon'' (\autoref{fig:sensing}), and the empirically grounded concept of phycosphere~\cite{seymour2017zooming,bell1972chemotactic,platt2023probing}, the biochemically-rich microenvironment which surrounds phytoplankton cells.
 
-Our analysis is based on several simplifying assumptions. Phytoplankton exudates typically vary in composition and abundance as a function of the organism's physiological state and life stage~\cite{maranon2004significance,thornton2014dissolved,seymour2017zooming}; different chemoattractants (which we only considered through their diffusivity) are known to elicit wildly different chemotactic responses, especially when multiple chemical species are simultaneously present~\cite{clerc2023strong,li2024phenotypic}, and each of them may affect bacterial metabolism and behavior in different ways~\cite{barak-gavish2023bacterial,stubbusch2023polysaccharide}. Metabolic shifts can in turn result in dramatic variations of the chemotactic sensitivity~\cite{egbert2010minimal,ni2020growthrate}, thus affecting the interaction rates with the phytoplankton cells and introducing feedback loops between behavior, physiology, and environment. All these factors and many others (fluid flows~\cite{bowen1993simulating,blackburn1999influence,kiorboe2001marine,taylor2012tradeoffs}, predation~\cite{nielsen2021foraging}, fluctuations from the scale of minutes, to days, to seasonal cycles~\cite{bernhardt2020life,karin2021temporal,nguyen2021environmental}) contribute to shape the microscale interaction landscape of the ocean.
+Our analysis is based on several simplifying assumptions. Phytoplankton exudates typically vary in composition and abundance as a function of the organism's physiological state and life stage~\cite{maranon2004significance,thornton2014dissolved,seymour2017zooming}; different chemoattractants (which we only considered through their diffusivity) are known to elicit wildly different chemotactic responses, especially when multiple chemical species are simultaneously present~\cite{clerc2023strong,li2024phenotypic}, and each of them may affect bacterial metabolism and behavior in different ways~\cite{barak-gavish2023bacterial,stubbusch2023polysaccharide}. Metabolic shifts can in turn result in dramatic variations of the chemotactic sensitivity~\cite{egbert2010minimal,ni2020growthrate}, thus affecting the interaction rates with the phytoplankton cells and introducing feedback loops between behavior, physiology, and environment. All these factors and many others (fluid flows~\cite{bowen1993simulating,blackburn1999influence,kiorboe2001marine,taylor2012tradeoffs,slomka2020encounter}, predation~\cite{nielsen2021foraging}, fluctuations from the scale of minutes, to days, to seasonal cycles~\cite{bernhardt2020life,karin2021temporal,nguyen2021environmental}) contribute to shape the microscale interaction landscape of the ocean.
 
 
 %% Conclusions paragraph
@@ -389,7 +390,7 @@ In conclusion, using idealized models of phytoplankton leakage and bacterial che
 \matmethods{
 All the data shown in this work has been generated through custom Julia~\cite{} code; all the processed data and the scripts used to generate it are freely available at {\color{red}zenodo} and {\color{red}github} respectively.
 Project codes and data were managed with DrWatson.jl~\cite{}, explicit simulations of molecular absorption events made use of Distributions.jl~\cite{}, and HypothesisTests.jl~\cite{} was employed to perform the Kolmogorov-Smirnov tests.
-Figures were realized with Makie.jl~\cite{} and Inkscape~\cite{}.
+Figures were realized with Makie.jl~\cite{} and Inkscape.
 }
 
 \showmatmethods{} % Display the Materials and Methods section

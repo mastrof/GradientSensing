@@ -37,14 +37,14 @@ function community_structure(α, Ntot, nclasses; r_min=0.5, r_max=70)
     return r, r_edges, N
 end
 
-function encounter_times!(df, r, N, λ, U, T, PER; Dc=500, Π=6)
+function encounter_times!(df, r, N, λ, U, T, PER; Dc=500, Π=6, C0=1u"nM")
     Te = @. time_to_encounter(r, λ, U, N) / 3600 # hours
     r_units = r .* 1u"μm"
     L = leakage_rate.(r_units, PER)
     Dc_units = Dc * 1u"μm^2/s"
     U_units = U * 1u"μm/s"
     Cp_units = C.(r_units, L, 1u"nM", Dc_units)
-    S = @. HeinModRadius(r_units, Cp_units, 1u"nM", T * 1u"ms", Dc_units, U_units, Π) |> u"μm" |> ustrip
+    S = @. HeinModRadius(r_units, Cp_units, C0, T * 1u"ms", Dc_units, U_units, Π) |> u"μm" |> ustrip
     Ic = @. IC(λ, r + ustrip(a), S + ustrip(a))
     newdf = DataFrame(
         U=U,
@@ -92,21 +92,22 @@ function find_r_prc(N, r, p)
 end
 
 ## Parameter values used throughout the entire code
-Ntot = 1e5 # total phytoplankton abundance (cell/mL)
+Ntot_oligotrophic = 1e5 # total phytoplankton abundance (cell/mL)
+Ntot_productive = 2e5 # (cell/mL)
 n = 15 # number of size classes in community size spectrum
 r_min, r_max = 0.5, 70.0 # extremal values of phytoplankton size
-Us = [25 70] # swimming speeds
-Ts = [150 60] # sensory timescales
+Us = [25 60] # swimming speeds
+Ts = [250 100] # sensory timescales
 λ = 30 # bacterial correlation length (μm)
 PER = [0.02, 0.1, 0.4] # values of percent extracellular release
 
 ##
 
 # define a range of volumes uniformly distributed in log2 scale
-α_oligotrophic = -0.9
+α_oligotrophic = -1
 α_productive = -0.75
-r, r_edges, N_oligotrophic = community_structure(α_oligotrophic, Ntot, n; r_min, r_max)
-_, _, N_productive = community_structure(α_productive, Ntot, n; r_min, r_max)
+r, r_edges, N_oligotrophic = community_structure(α_oligotrophic, Ntot_oligotrophic, n; r_min, r_max)
+_, _, N_productive = community_structure(α_productive, Ntot_productive, n; r_min, r_max)
 N = Dict(
     :oligotrophic => N_oligotrophic,
     :productive => N_productive
@@ -122,7 +123,8 @@ df = Dict(
     :productive => dfsetup()
 )
 for environment in [:oligotrophic, :productive], per in PER, (T, U) in zip(Ts, Us)
-    encounter_times!(df[environment], r, N[environment], λ, U, T, per)
+    C0 = environment == :oligotrophic ? 1u"nM" : 100u"nM"
+    encounter_times!(df[environment], r, N[environment], λ, U, T, per; C0)
 end
 
 
@@ -191,10 +193,10 @@ lines!(ax_oligo, r, Te_rnd_oligo[:, 2];
 hlines!(ax_oligo, [24, 24 * 7, 24 * 30]; linestyle=:dash, color=:black, label=false)
 vlines!(ax_oligo, prc[:oligotrophic]; linestyle=:dot, color=:black, label=false)
 text!(ax_oligo,
-    [25, 25, 0.5], [24, 24 * 7, 24 * 30];
+    [25, 25, 25], [24, 24 * 7, 24 * 30];
     text=["1 day", "1 week", "1 month"],
     fontsize=22,
-    align=(:left, :bottom)
+    align=(:left, :top)
 )
 text!(ax_oligo,
     prc[:oligotrophic] .* [0.55, 1.05], [1300];
@@ -327,7 +329,7 @@ scatterlines!(ax_communities,
     marker=:utriangle,
     markersize=32,
     color=color_communities[1],
-    label="Oligotrophic"
+    label=rich("Oligotrophic (10", superscript("5"), " cells/mL)")
 )
 scatterlines!(ax_communities,
     r, N[:productive],
@@ -335,36 +337,9 @@ scatterlines!(ax_communities,
     marker=:dtriangle,
     markersize=32,
     color=color_communities[2],
-    label="Productive"
+    label=rich("Productive (2×10", superscript("5"), " cells/mL)")
 )
-axislegend(ax_communities; position=:lb, patchsize=(60, 20))
-
-
-inset_ax = Axis(panelb[1, 1],
-    xlabel=rich(rich("R"; font=:italic), " (μm)"),
-    ylabel=rich("10", superscript("3"), " cells/mL"),
-    width=Relative(0.3),
-    height=Relative(0.4),
-    halign=0.95,
-    valign=0.9,
-    backgroundcolor=:white,
-    xlabelsize=14,
-    xticklabelsize=14,
-    ylabelsize=14,
-    yticklabelsize=14,
-    xticks=[1, 3, 9, 27],
-    xscale=log10,
-)
-xlims!(inset_ax, (0.5, 12))
-scatterlines!(inset_ax,
-    r, (N[:oligotrophic] .- N[:productive]) ./ 1e3,
-    linewidth=4,
-    marker=:diamond,
-    markersize=12,
-    color=:black
-)
-translate!(inset_ax.scene, 0, 0, 2)
-translate!(inset_ax.elements[:background], 0, 0, 1)
+axislegend(ax_communities; position=:rt, patchsize=(60, 20))
 
 
 fig
@@ -404,7 +379,7 @@ Rmin, Rmax = r[1], r[end]
 Cmin, Cmax = 1.5e-3, 1.0
 cmap = :viridis
 clims = (0, 2.5)
-clevels = range(clims...; step=0.25)
+clevels = range(clims...; step=0.1)
 
 Ic_str = rich("I", subscript("c"); font=:italic)
 

@@ -122,7 +122,7 @@ ax_a = Axis(pa[1,1],
 )
 
 clims = (0, 2.5)
-clevels = range(clims...; step = 0.25)
+clevels = range(clims...; step = 0.1)
 cmap = :viridis
 
 cb = Colorbar(pa[1,2],

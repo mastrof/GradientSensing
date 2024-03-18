@@ -2,6 +2,7 @@
 using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames
+using ImageFiltering
 using GLMakie
 using PublicationFiguresMakie
 arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
@@ -51,7 +52,7 @@ Rmin, Rmax = 0.36, 45.0
 Cmin, Cmax = 1.5e-3, Cks[end]
 cmap = :viridis
 clims = (0, 2.5)
-clevels = range(clims...; step = 0.25)
+clevels = range(clims...; step = 0.1)
 
 Ic_str = rich("I", subscript("c"); font=:italic)
 C_str = rich(rich("C", subscript("s"); font=:italic), " (μM)")

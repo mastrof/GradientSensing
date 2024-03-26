@@ -18,6 +18,7 @@ function phycosphere_hein(config)
         suffix = "jld2",
         tag = false,
         loadfile = false,
+        force = true,
     ) do config
         @unpack R, Cₛ = jldopen(datadir("HeinMod", "RC.jld2"), "r")
         phycosphere_hein(config, R, Cₛ)

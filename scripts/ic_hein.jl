@@ -30,7 +30,8 @@ function ic_hein()
         produce_or_load(
             datadir("HeinMod"), params;
             prefix="IC", suffix="jld2",
-            tag=false
+            tag=false,
+            force=true
         ) do params
             # evaluate chemotactic index for each (R,L) pair
             ic = @. IC(λ,R+a,S+a)

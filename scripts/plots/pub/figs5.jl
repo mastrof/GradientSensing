@@ -63,7 +63,7 @@ R_str = rich(rich("R"; font=:italic), " (μm)")
 cmap = :viridis
 clims = (0, 2.5)
 clevels = range(clims...; step = 0.1)
-fig = Figure(size=TwoColumns())
+fig = Figure(size=TwoColumns(2))
 cb = Colorbar(fig[1,4],
     colormap = cmap,#cgrad(cmap, length(clevels)-1; categorical=true),
     colorrange = clims,
@@ -74,6 +74,7 @@ cb = Colorbar(fig[1,4],
     #height = 0.85*h
 )
 C0 = [0, 1, 10]u"nM"
+# top
 labs = rich.(["(A)", "(B)", "(C)"]; font=:bold)
 ax = [
     Axis(fig[1,j], xlabel=R_str, ylabel=C_str, xscale=log10, yscale=log10,
@@ -104,5 +105,64 @@ for j in reverse(eachindex(C0))
     )
     xlims!(ax[j], (Rmin, Rmax))
     ylims!(ax[j], (Cmin, Cmax))
+end
+# bottom
+n = 8
+cmap = cgrad(:isoluminant_cgo_80_c38_n256, n; categorical=true)
+labs = rich.(["(D) ", "(E) ", "(F) "]; font=:bold)
+lab_text = [
+    rich("U from ", rich("15",color=cmap[1]), " to ", rich("100",color=cmap[end]), " μm/s"),
+    rich("T from ", rich("50",color=cmap[1]), " to ", rich("500",color=cmap[end]), " ms"),
+    rich("D", subscript("C"), " from ", rich("200",color=cmap[1]), " to ", rich("1000",color=cmap[end]), " μm", superscript("2"), "/s"),
+]
+ax = [
+    Axis(fig[2,j], xlabel=R_str, ylabel=C_str, xscale=log10, yscale=log10,
+        xticks=[1,3,9,27], yticks=[0.01,0.1,1],
+        title=rich(labs[j], lab_text[j]),
+        yticklabelsvisible=(j==1), ylabelvisible=(j==1)
+    )
+    for j in eachindex(labs)
+]
+xlims!.(ax, Rmin, Rmax)
+ylims!.(ax, Cmin, Cmax)
+C0 = 10u"nM"
+for (i,Dc) in exp10.(range(log10(50), log10(500); length=n))u"μm^2/s" |> enumerate
+    local radii = range(Rmin, Rmax; length=1000)u"μm"
+    CL = @. leftboundary(radii, C0, U, T, Dc, a) |> u"μM"
+    l = findall(radii .<= 1.06 * U * T)
+    r = setdiff(eachindex(radii), l[1:end-1])
+    lines!(ax[3], ustrip.(radii[l]), ustrip.(CL[l]);
+        linewidth=8, color=cmap[i]
+    )
+    CR = @. rightboundary(radii, C0, U, T, Dc, a) |> u"μM"
+    lines!(ax[3], ustrip.(radii[r]), ustrip.(CR[r]);
+        linewidth=8, color=cmap[i]
+    )
+end
+for (i,T) in exp10.(range(log10(50), log10(500); length=n))u"ms" |> enumerate
+    local radii = range(Rmin, Rmax; length=1000)u"μm"
+    CL = @. leftboundary(radii, C0, U, T, Dc, a) |> u"μM"
+    l = findall(radii .<= 1.06 * U * T)
+    r = setdiff(eachindex(radii), l[1:end-1])
+    lines!(ax[2], ustrip.(radii[l]), ustrip.(CL[l]);
+        linewidth=8, color=cmap[i]
+    )
+    CR = @. rightboundary(radii, C0, U, T, Dc, a) |> u"μM"
+    lines!(ax[2], ustrip.(radii[r]), ustrip.(CR[r]);
+        linewidth=8, color=cmap[i]
+    )
+end
+for (i,U) in exp10.(range(log10(15), log10(100); length=n))u"μm/s" |> enumerate
+    local radii = range(Rmin, Rmax; length=1000)u"μm"
+    CL = @. leftboundary(radii, C0, U, T, Dc, a) |> u"μM"
+    l = findall(radii .<= 1.06 * U * T)
+    r = setdiff(eachindex(radii), l[1:end-1])
+    lines!(ax[1], ustrip.(radii[l]), ustrip.(CL[l]);
+        linewidth=8, color=cmap[i]
+    )
+    CR = @. rightboundary(radii, C0, U, T, Dc, a) |> u"μM"
+    lines!(ax[1], ustrip.(radii[r]), ustrip.(CR[r]);
+        linewidth=8, color=cmap[i]
+    )
 end
 fig

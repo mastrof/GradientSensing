@@ -9,7 +9,7 @@ arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
 set_theme!(Publication,
     Axis = (
         xminorticksvisible=false, yminorticksvisible=false,
-        titlesize=32,
+        titlesize=32, titlefont=:bold, titlealign=:left,
     ),
     fonts = (
         regular="Arial",
@@ -18,99 +18,85 @@ set_theme!(Publication,
     ),
 )
 
-## concentration field
-Cdiff(r, R, C0, Cs) = (C0 + Cs*R / r) |> u"μM"
-∇Cdiff(r, R, C0, Cs) = (Cs*R / r^2) |> u"μM/μm"
-## sensing
-snr(U, C, ∇C, r, R, C0, Cs, T, Dc, a) = signal(U,∇C,r,R,C0,Cs)/noise(U,C,r,R,C0,Cs,T,Dc,a)
-signal(U, ∇C, r, R, C0, Cs) = U * ∇C(r,R,C0,Cs) |> u"μM/s"
-noise(U, C, r, R, C0, Cs, T, Dc, a) = 6 * σ0(C,r,R,C0,Cs,T,Dc,a) |> u"μM/s"
-σ0(C,r,R,C0,Cs,T,Dc,a) = sqrt(3*C(r,R,C0,Cs) / (π*a*Dc*T^3*Unitful.Na))
-ξ(U, r, T) = 1 / (1 - exp(-(r/(U*T))^(3/2)))
+## load two sample molecular adsorption times
+f = jldopen(datadir("Poisson", "larger.jld2"))
+waitingtimes = f["waitingtimes"][10][50]
+close(f)
+adsorption_times = cumsum(waitingtimes) # sensory timescale T = 100ms
+# split around midpoint
+t1 = adsorption_times[adsorption_times .< 50u"ms"]
+t2 = adsorption_times[adsorption_times .>= 50u"ms"]
+t2 .-= t1[end]
 
-U = 50u"μm/s"
-T = 100u"ms"
-Dc = 500u"μm^2/s"
-a = 0.5u"μm"
-λ = 30.0u"μm"
-C0 = 10u"nM"
+## load the results of a KS simulation
+R = 6.26
+f = jldopen(datadir("Poisson", "KolmogorovSmirnov", savename("sensing", Dict(
+    "C₀" => 1, # nM
+    "Cₛ" => 0.25, # μM
+    "Dc" => 500, # μm^2/s
+    "N" => 500,
+    "R" => R, # μm
+    "T" => 100, # ms
+    "U" => 50, # μm/s
+    "Δt" => 0.0001, # ms
+), "jld2")))
+r = f["r"]
+ksavg = f["ksavg"]
+ks = f["ks"]
+close(f)
+ravg = mean(hcat(r...); dims=2)[:,1]
+S = ustrip(ravg[findfirst(ksavg .>= 0.99)])
 
-Rs = [1.5, 8.0]u"μm"
-Cs = [0.02, 0.1]u"μM"
 
 ## figure
-fig = Figure(size=TwoColumns(), colormap=[:red, :red2, :cyan, :cyan2])
-cmap = cgrad(:Paired_4, 4; categorical=true)
-# Ic vs Dc
-ax3 = Axis(fig[1,3]; yscale=log10, yticks=[1, 10, 100],
-    xlabel=rich(rich("D", subscript("C"); font=:italic), " (μm", superscript("2"), "/s)"),
-    yticklabelsvisible=false,
+fig = Figure(size=TwoColumns(1.25))
+# dummy space
+Label(fig[1:2,2], "")
+# ks ensemble
+ax3 = Axis(fig[1:2,3];
+    xlabel="distance from source (μm)", ylabel="detected a gradient",
+    yticks=[0,1], yticksmirrored=false,
+    ytickformat=(values -> [v == 0 ? "no" : "yes" for v in values]),
+    ylabelcolor=cgrad(:Dark2)[4], yticklabelcolor=cgrad(:Dark2)[4],
+    title="C"
 )
-Ds = range(200, 1000; length=100)u"μm^2/s"
-for (i, (C,R)) in enumerate(Iterators.product(Cs,Rs))
-    ic = map(Ds) do Dc
-        L = U*T
-        g(r) = snr(U, Cdiff, ∇Cdiff, r, R, C0, C, T, Dc, a) / ξ(U, r, T) - 1
-        h = try
-            find_zero(g, R, Order0())
-        catch e
-            R
-        end
-        S = h > R ? h : R
-        IC(λ, R+a, S+a)
-    end
-    lines!(ax3, collect(ustrip.(Ds)), ic, linewidth=10, color=cmap[i],
-        label=rich(
-            rich("R"; font=:italic), " = $(R)\n\n",
-            rich("C", subscript("S"); font=:italic), " = $(C)",
-        )
-    )
-end
-# Ic vs U
-ax2 = Axis(fig[1,2]; yscale=log10, yticks=[1, 10, 100],
-    xlabel=rich(rich("U"; font=:italic), " (μm/s)"),
-    yticklabelsvisible=false,
+ax4 = Axis(fig[1:2,3];
+    ylabel="consensus fraction", yaxisposition=:right, yticks=[0,0.5,1],
+    yticksmirrored=false,
+    ylabelcolor=cgrad(:Dark2)[3], yticklabelcolor=cgrad(:Dark2)[3]
 )
-Us = range(15, 100; length=100)u"μm/s"
-for (i, (C,R)) in enumerate(Iterators.product(Cs,Rs))
-    ic = map(Us) do U
-        L = U*T
-        g(r) = snr(U, Cdiff, ∇Cdiff, r, R, C0, C, T, Dc, a) / ξ(U, r, T) - 1
-        h = try
-            find_zero(g, R, Order0())
-        catch e
-            R
-        end
-        S = h > R ? h : R
-        IC(λ, R+a, S+a)
-    end
-    lines!(ax2, collect(ustrip.(Us)), ic, linewidth=10, color=cmap[i])
+ylims!(ax3, -0.2, 1.2)
+ylims!(ax4, -0.2, 1.2)
+linkxaxes!(ax3, ax4)
+hidespines!(ax4)
+hidexdecorations!(ax4)
+n = 500
+for i in 1:n
+    x = ustrip(r[i])
+    y = @. ks[i] + (i-n/2)*0.0005
+    scatter!(ax3, x, y; markersize=12, alpha=0.06, color=cgrad(:Dark2)[4])
 end
-# Ic vs T
-ax1 = Axis(fig[1,1]; yscale=log10, yticks=[1, 10, 100],
-    xlabel=rich(rich("T"; font=:italic), " (ms)"),
-    ylabel=rich("I", subscript("C"); font=:italic)
+scatterlines!(ax4, ustrip(ravg), ksavg;
+    color=cgrad(:Dark2)[3], linewidth=6, markersize=24
 )
-Ts = range(50, 500; length=100)u"ms"
-for (i, (C,R)) in enumerate(Iterators.product(Cs,Rs))
-    ic = map(Ts) do T
-        L = U*T
-        g(r) = snr(U, Cdiff, ∇Cdiff, r, R, C0, C, T, Dc, a) / ξ(U, r, T) - 1
-        h = try
-            find_zero(g, R, Order0())
-        catch e
-            R
-        end
-        S = h > R ? h : R
-        IC(λ, R+a, S+a)
-    end
-    lines!(ax1, collect(ustrip.(Ts)), ic, linewidth=10, color=cmap[i])
-end
-
-Legend(fig[1,4], ax3; framevisible=false, rowgap=30)
-linkyaxes!(ax1, ax2, ax3)
-for (i,l) in enumerate(["A", "B", "C"])
-    ax = i == 1 ? ax1 : (i == 2 ? ax2 : ax3)
-    text!(ax, 0.05, 0.9; text=l, space=:relative, font=:bold)
-end
+errorbars!(ax4, ustrip(ravg), ksavg,
+    [std([ks[j][i] for j in eachindex(ks)])/sqrt(length(ksavg)) for i in eachindex(ksavg)];
+    color=cgrad(:Dark2)[3], linewidth=6
+)
+vlines!(ax3, [R]; linestyle=:dash, color=:gray, linewidth=2)
+vlines!(ax3, [S];
+    linestyle=:dash, color=cgrad(:Dark2)[2], linewidth=4
+)
+# adsorption times
+ax1 = Axis(fig[1,1]; xlabel="time (ms)", title="A")
+hideydecorations!(ax1)
+vlines!(ax1, ustrip.(t1); color=cgrad(:Dark2)[1])
+vlines!(ax1, ustrip.(t2 .+ t1[end]); color=cgrad(:Dark2)[2])
+vlines!(ax1, [50]; linewidth=5, linestyle=:dash, color=:black)
+# ecdf
+ax2 = Axis(fig[2,1];
+    xlabel="waiting time (ms)", ylabel="cumulative distribution", title="B"
+)
+ecdfplot!(ax2, diff(ustrip.(t1)); linewidth=4)
+ecdfplot!(ax2, diff(ustrip.(t2)); linewidth=4)
 fig

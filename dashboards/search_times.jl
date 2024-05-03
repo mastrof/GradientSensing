@@ -6,7 +6,8 @@ using DataFrames
 using Roots
 using Interpolations
 using StatsBase
-using GLMakie
+using Colors
+using WGLMakie
 set_theme!(Theme(
     fontsize = 32,
     palette = (
@@ -43,6 +44,8 @@ set_theme!(Theme(
         cycle = Cycle([:color, :marker], covary=true),
     ),
 ))
+# utils
+whiter(c) = weighted_color_mean(0.5, RGB(c), colorant"white")
 
 
 # concentration field
@@ -70,7 +73,16 @@ function encounter_time(N, R, λ, U, T, Dc, C0, a, PER; Π=6)
     Te = time_to_encounter(ustrip(R), ustrip(λ), ustrip(U), N) / 3600 # hours
     L = leakage_rate(R, PER)
     Cs = C(R, L, C0, Dc) - C0
-    S = HeinModRadius(R, Cs, C0, T, Dc, U, Π) |> u"μm"
+    #S = HeinModRadius(R, Cs, C0, T, Dc, U, Π) |> u"μm"
+    S = let
+        g(r) = snr(U,Cfield,Cgrad,r,R,C0,Cs,T,Dc,a) / ξ(U,r,T) - 1
+        h = try
+            find_zero(g, R)
+        catch e
+            R
+        end
+        h > R ? h : R
+    end
     Ic = IC(λ, R+a, S+a)
     Te / Ic
 end
@@ -100,15 +112,25 @@ pb = fig[3:10, 6:12] = GridLayout() # search times
 
 # set parameters with sliders + labels
 ## chemotaxis - global ; put on top
-sl_Dc = Slider(fig[12,3:4]; range=range(100,1000,step=100), startvalue=500, width=200)
+sl_Dc = Slider(fig[12,3:4]; range=range(100,1000,step=100), startvalue=500, width=200,
+    color_active=RGB(0,0,0), color_active_dimmed=whiter(RGB(0,0,0)),
+)
 Dc = @lift($(sl_Dc.value) * 1u"μm^2/s")
 lab_Dc = Label(fig[11,3:4]; text=@lift("Dc = $($Dc)"), padding=(0,0,0,25))
 ## chemotaxis - 1
 c1 = cgrad(:Dark2)[1]
-sl_U1 = Slider(fig[2,6]; range=range(15,100,step=5), startvalue=50, width=200)
-sl_T1 = Slider(fig[2,8]; range=range(50,500,step=50), startvalue=100, width=200)
-sl_a1 = Slider(fig[2,10]; range=range(0.25,2.5,step=0.25), startvalue=0.5, width=200)
-sl_λ1 = Slider(fig[2,12]; range=range(15,100,step=5), startvalue=30, width=200)
+sl_U1 = Slider(fig[2,6]; range=range(15,100,step=5), startvalue=30, width=200,
+    color_active=c1, color_active_dimmed=whiter(c1),
+)
+sl_T1 = Slider(fig[2,8]; range=range(50,500,step=50), startvalue=400, width=200,
+    color_active=c1, color_active_dimmed=whiter(c1),
+)
+sl_a1 = Slider(fig[2,10]; range=range(0.25,2.5,step=0.25), startvalue=0.5, width=200,
+    color_active=c1, color_active_dimmed=whiter(c1),
+)
+sl_λ1 = Slider(fig[2,12]; range=range(15,100,step=5), startvalue=30, width=200,
+    color_active=c1, color_active_dimmed=whiter(c1),
+)
 U1 = @lift($(sl_U1.value) * 1u"μm/s")
 T1 = @lift($(sl_T1.value) * 1u"ms")
 a1 = @lift($(sl_a1.value) * 1u"μm")
@@ -119,10 +141,18 @@ lab_a1 = Label(fig[1,10]; text=@lift("a = $($a1)"), padding=(0,0,0,25), color=c1
 lab_λ1 = Label(fig[1,12]; text=@lift("λ = $($λ1)"), padding=(0,0,0,25), color=c1)
 ## chemotaxis - 2
 c2 = cgrad(:Dark2)[3]
-sl_U2 = Slider(fig[12,6]; range=range(15,100,step=5), startvalue=50, width=200)
-sl_T2 = Slider(fig[12,8]; range=range(50,500,step=50), startvalue=100, width=200)
-sl_a2 = Slider(fig[12,10]; range=range(0.25,2.5,step=0.25), startvalue=0.5, width=200)
-sl_λ2 = Slider(fig[12,12]; range=range(15,100,step=5), startvalue=30, width=200)
+sl_U2 = Slider(fig[12,6]; range=range(15,100,step=5), startvalue=60, width=200,
+    color_active=c2, color_active_dimmed=whiter(c2),
+)
+sl_T2 = Slider(fig[12,8]; range=range(50,500,step=50), startvalue=150, width=200,
+    color_active=c2, color_active_dimmed=whiter(c2),
+)
+sl_a2 = Slider(fig[12,10]; range=range(0.25,2.5,step=0.25), startvalue=0.5, width=200,
+    color_active=c2, color_active_dimmed=whiter(c2),
+)
+sl_λ2 = Slider(fig[12,12]; range=range(15,100,step=5), startvalue=30, width=200,
+    color_active=c2, color_active_dimmed=whiter(c2),
+)
 U2 = @lift($(sl_U2.value) * 1u"μm/s")
 T2 = @lift($(sl_T2.value) * 1u"ms")
 a2 = @lift($(sl_a2.value) * 1u"μm")
@@ -133,9 +163,15 @@ lab_a2 = Label(fig[11,10]; text=@lift("a = $($a2)"), padding=(0,0,0,25), color=c
 lab_λ2 = Label(fig[11,12]; text=@lift("λ = $($λ2)"), padding=(0,0,0,25), color=c2)
 ## phytoplankton - oligotrophic
 cp1 = cgrad(:tab10)[1]
-sl_N1 = Slider(fig[2,1]; range=range(2e4,1e6,step=2e4), startvalue=6e4, width=200)
-sl_α1 = Slider(fig[4,1]; range=range(0.65,1.2,step=0.05), startvalue=1.0, width=200)
-sl_C01 = Slider(fig[6,1]; range=range(0,500,step=10), startvalue=10, width=200)
+sl_N1 = Slider(fig[2,1]; range=range(2e4,1e6,step=2e4), startvalue=6e4, width=200,
+    color_active=cp1, color_active_dimmed=whiter(cp1),
+)
+sl_α1 = Slider(fig[4,1]; range=range(0.65,1.2,step=0.05), startvalue=1.0, width=200,
+    color_active=cp1, color_active_dimmed=whiter(cp1),
+)
+sl_C01 = Slider(fig[6,1]; range=range(0,500,step=1), startvalue=10, width=200,
+    color_active=cp1, color_active_dimmed=whiter(cp1),
+)
 N1 = @lift($(sl_N1.value) * 1)
 α1 = @lift($(sl_α1.value) * 1)
 C01 = @lift($(sl_C01.value) * 1u"nM")
@@ -144,9 +180,15 @@ lab_α1 = Label(fig[3,1]; text=@lift("α = $($α1)"), padding=(0,0,0,25), color=
 lab_C01 = Label(fig[5,1]; text=@lift("C₀ = $($C01)"), padding=(0,0,0,25), color=cp1)
 ## phytoplankton - productive
 cp2 = cgrad(:tab10)[2]
-sl_N2 = Slider(fig[8,1]; range=range(2e4,1e6,step=2e4), startvalue=2e5, width=200)
-sl_α2 = Slider(fig[10,1]; range=range(0.65,1.2,step=0.05), startvalue=0.75, width=200)
-sl_C02 = Slider(fig[12,1]; range=range(0,500,step=10), startvalue=100, width=200)
+sl_N2 = Slider(fig[8,1]; range=range(2e4,1e6,step=2e4), startvalue=2e5, width=200,
+    color_active=cp2, color_active_dimmed=whiter(cp2),
+)
+sl_α2 = Slider(fig[10,1]; range=range(0.65,1.2,step=0.05), startvalue=0.75, width=200,
+    color_active=cp2, color_active_dimmed=whiter(cp2),
+)
+sl_C02 = Slider(fig[12,1]; range=range(0,500,step=10), startvalue=100, width=200,
+    color_active=cp2, color_active_dimmed=whiter(cp2),
+)
 N2 = @lift($(sl_N2.value) * 1)
 α2 = @lift($(sl_α2.value) * 1)
 C02 = @lift($(sl_C02.value) * 1u"nM")
@@ -271,3 +313,5 @@ for (i,Te) in enumerate((Te_pro1, Te_pro2))
         marker=(i == 1 ? :circle : :rect)
     )
 end
+
+fig

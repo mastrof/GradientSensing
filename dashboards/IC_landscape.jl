@@ -105,19 +105,28 @@ begin
     lab_λ = Label(fig[11,0]; text=@lift("λ = $($λ)"), padding=(0,0,0,25))
 
 	# compute IC
-	ic = @lift(map(Iterators.product(Rs, Cs)) do (R,C)	
-		# solve for S
-		g(r) = snr($U,Cfield,Cgrad,r,R,$C0,C,$T,$Dc,$a) / ξ($U,r,$T) - 1
-		h = try
-			find_zero(g, R)
-		catch e
-			R
-		end
-		S = h > R ? h : R
-		# evaluate IC
-		IC($λ,R+$a,S+$a) # defined in GradientSensing
-	end)
-	ic_log10 = @lift(log10.($ic))
+    g(r,U,R,C0,C,T,Dc,a) = snr(U,Cfield,Cgrad,r,R,C0,C,T,Dc,a) / ξ(U,r,T) - 1
+    ic = Observable(ones(length(Rs), length(Cs)))
+    ic_log10 = @lift(log10.($ic))
+    RCSpace = Iterators.product(Rs, Cs)
+    observer = @lift([$U,$T,$Dc,$a,$C0,$λ])
+    on(observer) do _
+        for (i,(R,C)) in enumerate(RCSpace)
+            ic[][i] = begin
+                h = try
+                    find_zero(r -> g(r,U[],R,C0[],C,T[],Dc[],a[]), R, Order5())
+                catch e
+                    R
+                end
+                S = h > R ? h : R
+                # evaluate IC
+                IC(λ[],R+a[],S+a[]) # defined in GradientSensing
+            end
+            ic_log10[][i] = log10(ic[][i])
+        end
+        notify(ic)
+        notify(ic_log10)
+    end
 
     # plot cuts at selected values of R
     ax_B = Axis(pb[1,1];

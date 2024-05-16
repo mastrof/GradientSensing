@@ -7,7 +7,7 @@ using Roots
 using Interpolations
 using StatsBase
 using Colors
-using WGLMakie
+using GLMakie
 set_theme!(Theme(
     fontsize = 32,
     palette = (

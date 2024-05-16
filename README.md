@@ -6,7 +6,22 @@ R. Foffi, D.B. Brumley, F.J. Peaudecerf, R. Stocker, J. Słomka.
 
 The code base is authored by Riccardo Foffi.
 
-## Pipeline description
+## How to reproduce
+To (locally) reproduce this project, do the following:
+
+0. Install Julia () and download this code base. Notice that no data is included in the git-history.
+1. Open a Julia console and do:
+   ```
+   julia> using Pkg
+   julia> Pkg.add("DrWatson") # install globally, for using `quickactivate`
+   julia> Pkg.activate("path/to/this/project")
+   julia> Pkg.instantiate()
+   ```
+
+This will install all necessary packages for you to be able to run the scripts and
+everything should work out of the box, including correctly finding local paths.
+
+## Data production pipeline
 - Run `scripts/parameterspace_hein.jl` to produce the range of $R$ and $C_S$ values that
   will be used in the numerical evaluation of the theoretical $I_C$ landscape.
   It will output `RC.jld2` to `datadir("Hein")`
@@ -31,17 +46,8 @@ The code base is authored by Riccardo Foffi.
   Kolmogorov-Smirnov estimates of the sensory horizon $S$.
   For each parameter combination it will output a file with prefix `IC` to `datadir("Poisson", "KolmogorovSmirnov")`.
 
-## How to reproduce
-To (locally) reproduce this project, do the following:
+## Dashboards
+The dashboards for the interactive evaluation of the $I_C$ landscape and of
+bacteria-phytoplankton search times are found in the `dashboards` directory.
 
-0. Install Julia () and download this code base. Notice that no data is included in the git-history.
-1. Open a Julia console and do:
-   ```
-   julia> using Pkg
-   julia> Pkg.add("DrWatson") # install globally, for using `quickactivate`
-   julia> Pkg.activate("path/to/this/project")
-   julia> Pkg.instantiate()
-   ```
-
-This will install all necessary packages for you to be able to run the scripts and
-everything should work out of the box, including correctly finding local paths.
+It is not required to run the data production pipeline to use the dashboards.

@@ -16,10 +16,12 @@ To (locally) reproduce this project, do the following:
    julia> Pkg.add("DrWatson") # install globally, for using `quickactivate`
    julia> Pkg.activate("path/to/this/project")
    julia> Pkg.instantiate()
+   julia> Pkg.precompile()
    ```
 
 This will install all necessary packages for you to be able to run the scripts and
 everything should work out of the box, including correctly finding local paths.
+Installation and precompilation of all the packages may take a while.
 
 ## Data production pipeline
 - Run `scripts/parameterspace_hein.jl` to produce the range of $R$ and $C_S$ values that

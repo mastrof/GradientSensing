@@ -24,11 +24,11 @@ everything should work out of the box, including correctly finding local paths.
 ## Data production pipeline
 - Run `scripts/parameterspace_hein.jl` to produce the range of $R$ and $C_S$ values that
   will be used in the numerical evaluation of the theoretical $I_C$ landscape.
-  It will output `RC.jld2` to `datadir("Hein")`
+  It will output `RC.jld2` to `datadir("HeinMod")`
 - Run `scripts/phycosphere_hein_mod.jl` to numerically evaluate the sensory horizon $S$ for the selected set of parameters.
-  For each parameter combination it will output a file with prefix `phycosphere` to `datadir("Hein")`.
+  For each parameter combination it will output a file with prefix `phycosphere` to `datadir("HeinMod")`.
 - Run `scripts/ic_hein.jl` to evaluate the $I_C$ using the numerical computations of $S$.
-  For each parameter combination it will output a file with prefix `IC` to datadir("Hein").
+  For each parameter combination it will output a file with prefix `IC` to datadir("HeinMod").
 - Run `scripts/parameterspace_poisson.jl` to produce the range of $R$ and $C_S$ values that
   will be used in the evaluation of the $I_C$ landscape through the Kolmogorov-Smirnov sensor.
   It will output `RC.jld2` to `datadir("Poisson")`

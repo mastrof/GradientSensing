@@ -4,11 +4,7 @@
 
 # Folders to ignore - files may be too large, too many, etc. NOTE: EDIT IF NEEDED.
 # comment next line to track data files
-/data
-# track the placeholder dir.md files
-# so that the datadir structure is reproduced on github
-!/data/HeinMod/dir.md
-!/data/Poisson/KolmogorovSmirnov/dir.md
+*.jld2
 /videos
 /oldplots
 /plots/*

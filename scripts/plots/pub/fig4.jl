@@ -4,19 +4,6 @@ using DrWatson
 using JLD2, DataFrames
 using ImageFiltering
 using GLMakie
-using PublicationFiguresMakie
-arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
-set_theme!(Publication,
-    Axis = (
-        xminorticksvisible=false, yminorticksvisible=false,
-        xtickcolor = :white, ytickcolor = :white
-    ),
-    fonts = (
-        regular = "Arial",
-        bold = "Arial Bold",
-        italic = arial_italic,
-    ) 
-)
 
 function wsmooth(x)
     w = [1 1 1; 1 4 1; 1 1 1]
@@ -41,7 +28,7 @@ datasets_ks = unpack_dataframe(
 )
 
 ## Initialize figure layout
-w, h = TwoColumns(1.5)
+w, h = 1600, 900
 fig = Figure(resolution = (w,h))
 pa = fig[1:2,1] = GridLayout()
 pb = fig[1:2,2] = GridLayout()

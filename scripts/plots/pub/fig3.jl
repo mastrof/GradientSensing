@@ -3,19 +3,8 @@ using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames
 using CairoMakie
-using PublicationFiguresMakie
-arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
-set_theme!(Publication,
-    Axis = (
-        xminorticksvisible=false, yminorticksvisible=false,
-    ),
-    fonts = (
-        regular = "Arial",
-        bold = "Arial Bold",
-        italic = arial_italic,
-    ) 
-)
-
+using ColorSchemes
+palette(colors::Symbol, n::Int) = get(colorschemes[colors], range(0,1;length=n))
 
 ## Load data
 f = jldopen(datadir("HeinMod", "RC.jld2"), "r")
@@ -57,7 +46,7 @@ R_str = rich(rich("R"; font=:italic), " (μm)")
 
 
 ## Initialize figure layout
-fig = Figure(resolution = TwoColumns(1.25))
+fig = Figure(resolution = (1600,720))
 pa = fig[1:2,1] = GridLayout()
 pb = fig[1,2] = GridLayout()
 pc = fig[2,2] = GridLayout()

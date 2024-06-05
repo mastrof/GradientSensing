@@ -4,19 +4,6 @@ using DataFrames
 using JLD2
 using Roots
 using GLMakie
-using PublicationFiguresMakie
-arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
-set_theme!(Publication,
-    Axis = (
-        xminorticksvisible=false, yminorticksvisible=false,
-        titlesize=32, titlefont=:bold, titlealign=:left,
-    ),
-    fonts = (
-        regular="Arial",
-        bold="Arial Bold",
-        italic=arial_italic,
-    ),
-)
 
 ## load two sample molecular adsorption times
 f = jldopen(datadir("Poisson", "larger.jld2"))
@@ -49,7 +36,7 @@ S = ustrip(ravg[findfirst(ksavg .>= 0.99)])
 
 
 ## figure
-fig = Figure(size=TwoColumns(1.25))
+fig = Figure(size=(1600,750))
 # dummy space
 Label(fig[1:2,2], "")
 # ks ensemble

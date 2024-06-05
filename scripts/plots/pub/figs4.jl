@@ -4,19 +4,6 @@ using DataFrames
 using JLD2
 using Roots
 using GLMakie
-using PublicationFiguresMakie
-arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
-set_theme!(Publication,
-    Axis = (
-        xminorticksvisible=false, yminorticksvisible=false,
-        titlesize=32,
-    ),
-    fonts = (
-        regular="Arial",
-        bold="Arial Bold",
-        italic=arial_italic,
-    ),
-)
 
 ## concentration field
 Cdiff(r, R, C0, Cs) = (C0 + Cs*R / r) |> u"μM"
@@ -39,7 +26,7 @@ Rs = [1.5, 8.0]u"μm"
 Cs = [0.02, 0.1]u"μM"
 
 ## figure
-fig = Figure(size=TwoColumns(), colormap=[:red, :red2, :cyan, :cyan2])
+fig = Figure(size=(1600,600), colormap=[:red, :red2, :cyan, :cyan2])
 cmap = cgrad(:Paired_4, 4; categorical=true)
 # Ic vs Dc
 ax3 = Axis(fig[1,3]; yscale=log10, yticks=[1, 10, 100],

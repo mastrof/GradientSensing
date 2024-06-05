@@ -4,19 +4,6 @@ using DataFrames
 using JLD2
 using Roots
 using GLMakie
-using PublicationFiguresMakie
-arial_italic = "/usr/share/fonts/TTF/ariali.ttf"
-set_theme!(Publication,
-    Axis = (
-        xminorticksvisible=false, yminorticksvisible=false,
-        titlesize=32,
-    ),
-    fonts = (
-        regular="Arial",
-        bold="Arial Bold",
-        italic=arial_italic,
-    ),
-)
 
 ## concentration field
 Cdiff(r, R, C0, Cs) = (C0 + Cs*R / r) |> u"μM"
@@ -70,7 +57,7 @@ R_str = rich(rich("R"; font=:italic), " (μm)")
 cmap = :viridis
 clims = (0, 2.5)
 clevels = range(clims...; step = 0.1)
-fig = Figure(size=TwoColumns())
+fig = Figure(size=(1600,600))
 cb = Colorbar(fig[1,3],
     colormap = cmap,#cgrad(cmap, length(clevels)-1; categorical=true),
     colorrange = clims,

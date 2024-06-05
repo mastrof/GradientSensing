@@ -8,22 +8,8 @@ using Interpolations
 using Roots
 using Unitful
 using GLMakie
-using PublicationFiguresMakie
-set_theme!(Publication,
-    fontsize=26,
-    fonts=(
-        regular="Arial",
-        italic="/usr/share/fonts/TTF/ariali.ttf",
-        bold="Arial Bold"
-    ),
-    Axis=(
-        xminorticksvisible=false,
-        yminorticksvisible=false,
-    ),
-    Legend=(
-        labelsize=18,
-    )
-)
+using ColorSchemes
+palette(colors::Symbol, n::Int) = get(colorschemes[colors], range(0,1;length=n))
 
 ##
 function community_structure(α, Ntot, nclasses; r_min=0.5, r_max=70)
@@ -129,7 +115,7 @@ end
 
 
 ## Initialize figure layout
-fig = Figure(resolution=TwoColumns(1.2))
+fig = Figure(resolution=(1600,720))
 panela = fig[1:2, 1] = GridLayout()
 panelb = fig[3:4, 1] = GridLayout()
 panelc = fig[1:3, 2] = GridLayout()

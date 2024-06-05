@@ -40,4 +40,4 @@ Cmax = C(R₂, Lmax, C₀, Dc)
 # generate 100 log-uniform values in this range
 Cₛ = exp10.(range(log10(ustrip(Cmin)), log10(ustrip(Cmax)), length=100))u"μM"
 
-@save datadir("Hein", "RC.jld2") R Cₛ
+@save datadir("HeinMod", "RC.jld2") R Cₛ

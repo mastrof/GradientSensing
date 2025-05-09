@@ -23,15 +23,20 @@ function community_structure(α, Ntot, nclasses; r_min=0.5, r_max=70)
     return r, r_edges, N
 end
 
-function encounter_times!(df, r, N, λ, U, T, PER; Dc=500, Π=6, C0=1u"nM")
-    Te = @. time_to_encounter(r, λ, U, N) / 3600 # hours
+function encounter_times!(df, placeholder, N, λ, U, T, PER; Dc=500, Π=6, C0=1u"nM")
+    Te = @. time_to_encounter(r+ustrip(a), λ, U, N) / 3600 # hours
     r_units = r .* 1u"μm"
-    L = leakage_rate.(r_units, PER)
+    re_units = r_edges .* 1u"μm"
+    L = leakage_rate.(re_units, PER)
     Dc_units = Dc * 1u"μm^2/s"
     U_units = U * 1u"μm/s"
-    Cp_units = C.(r_units, L, 1u"nM", Dc_units)
-    S = @. HeinModRadius(r_units, Cp_units, C0, T * 1u"ms", Dc_units, U_units, Π) |> u"μm" |> ustrip
-    Ic = @. IC(λ, r + ustrip(a), S + ustrip(a))
+    Cp_units = C.(re_units, L, 1u"nM", Dc_units)
+    Se = @. HeinModRadius(re_units, Cp_units, C0, T * 1u"ms", Dc_units, U_units, Π) |> u"μm" |> ustrip
+    #S = @. HeinModRadius(r_units, Cp_units, C0, T * 1u"ms", Dc_units, U_units, Π) |> u"μm" |> ustrip
+    S = [sqrt(Se[i-1]*Se[i]) for i in eachindex(Se)[2:end]]
+    Ice = @. IC(λ, r_edges + ustrip(a), Se + ustrip(a))
+    Ic = [sqrt(Ice[i-1]*Ice[i]) for i in eachindex(Ice)[2:end]]
+    #Ic = @. IC(λ, r + ustrip(a), S + ustrip(a))
     newdf = DataFrame(
         U=U,
         T=T,
@@ -80,8 +85,13 @@ end
 ## Parameter values used throughout the entire code
 Ntot_oligotrophic = 1e5 # total phytoplankton abundance (cell/mL)
 Ntot_productive = 2e5 # (cell/mL)
-n = 15 # number of size classes in community size spectrum
+n = 17 # number of size classes in community size spectrum
 r_min, r_max = 0.5, 70.0 # extremal values of phytoplankton size
+V_min, V_max = @. 4π / 3 * (r_min^3, r_max^3) # μm³
+V_edges = exp2.(range(log2(V_min), log2(V_max); length=n+1))
+V = midpoints(V_edges)
+r_edges = @. (3 * V_edges / (4π))^(1 / 3)
+r = @. (3 * V / (4π))^(1 / 3) # μm
 Us = [25 60] # swimming speeds
 Ts = [250 100] # sensory timescales
 λ = 30 # bacterial correlation length (μm)
@@ -115,7 +125,7 @@ end
 
 
 ## Initialize figure layout
-fig = Figure(resolution=(1600,720))
+fig = Figure(resolution=(1600,720).*1)
 panela = fig[1:2, 1] = GridLayout()
 panelb = fig[3:4, 1] = GridLayout()
 panelc = fig[1:3, 2] = GridLayout()
@@ -138,7 +148,7 @@ ax_oligo = Axis(panelc[1, 1];
     title="Oligotrophic waters"
 )
 xlims!(ax_oligo, (0.45, 75))
-ylims!(ax_oligo, (8.5, 2e3))
+ylims!(ax_oligo, (5.5, 2e3))
 colors = palette(:Dark2_8, 8)[[1, 3]]
 
 bandalpha = 0.35
@@ -164,7 +174,7 @@ for (i, g) in enumerate(gdf[:oligotrophic])
 end
 
 # random search times for reference
-Te_rnd_oligo = @. time_to_encounter(r, λ, Us, N[:oligotrophic]) / 3600
+Te_rnd_oligo = @. time_to_encounter(r+ustrip(a), λ, Us, N[:oligotrophic]) / 3600
 lines!(ax_oligo, r, Te_rnd_oligo[:, 1];
     linestyle=:dash,
     linewidth=3,
@@ -205,7 +215,7 @@ ax_prod = Axis(paneld[1, 1];
     title="Productive waters"
 )
 xlims!(ax_prod, (0.45, 75))
-ylims!(ax_prod, (8.5, 2e3))
+ylims!(ax_prod, (5.5, 2e3))
 colors = palette(:Dark2_8, 8)[[1, 3]]
 
 bandalpha = 0.35
@@ -238,7 +248,7 @@ for (i, g) in enumerate(gdf[:productive])
 end
 
 # random search times for reference
-Te_rnd_prod = @. time_to_encounter(r, λ, Us, N[:productive]) / 3600
+Te_rnd_prod = @. time_to_encounter(r+ustrip(a), λ, Us, N[:productive]) / 3600
 random_1 = lines!(ax_prod, r, Te_rnd_prod[:, 1];
     linestyle=:dash,
     linewidth=3,

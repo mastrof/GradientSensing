@@ -38,9 +38,10 @@ end
 
 S(ρ) = map(Iterators.product(radii, concentrations)) do (R, Cs)
     L = U*T
-    f(r) = snr(U, Cexp, ∇Cexp, r, R, C0, Cs, ρ, T, Dc, a) - 1
+    f(r) = snr(U, Cexp, ∇Cexp, r*1u"μm", R, C0, Cs, ρ, T, Dc, a) - 1
     h = try
-        find_zero(f, R)
+        #find_zero(f, R, Order0())
+        find_zeros(f, ustrip(R), ustrip(40*R))[end] * 1u"μm"
     catch e
         R
     end
@@ -74,7 +75,7 @@ ax = [
     )
     for j in 1:3
 ]
-ρ = [30u"μm", 120u"μm", 400u"μm"]
+ρ = [3u"μm", 12u"μm", 400u"μm"]
 labs = rich.(["(A)", "(B)", "(C)"]; font=:bold)
 for j in 3:-1:1
     ax[j].title = rich(labs[j], " ", rich("ρ"; font=:italic), " = $(ustrip(ρ[j])) μm")

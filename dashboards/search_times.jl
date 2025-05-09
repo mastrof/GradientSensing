@@ -70,7 +70,7 @@ function community_structure(α, Ntot, nclasses, Rmin, Rmax)
 end
 # search
 function encounter_time(N, R, λ, U, T, Dc, C0, a, PER; Π=6)
-    Te = time_to_encounter(ustrip(R), ustrip(λ), ustrip(U), N) / 3600 # hours
+    Te = time_to_encounter(ustrip(R+a), ustrip(λ), ustrip(U), N) / 3600 # hours
     L = leakage_rate(R, PER)
     Cs = C(R, L, C0, Dc) - C0
     #S = HeinModRadius(R, Cs, C0, T, Dc, U, Π) |> u"μm"

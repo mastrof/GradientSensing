@@ -2,9 +2,13 @@
 using DrWatson
 @quickactivate :GradientSensing
 using JLD2, DataFrames
-using CairoMakie
+using GLMakie
 using ColorSchemes
 palette(colors::Symbol, n::Int) = get(colorschemes[colors], range(0,1;length=n))
+
+## boundaries
+leftboundary(R,C0,U,T,Dc,a) = 34.4*U/(a*Dc*R*Unitful.Na)
+rightboundary(R,C0,U,T,Dc,a) = 34.4*R^2/(a*Dc*U^2*T^3*Unitful.Na)
 
 ## Load data
 f = jldopen(datadir("HeinMod", "RC.jld2"), "r")
@@ -46,7 +50,7 @@ R_str = rich(rich("R"; font=:italic), " (μm)")
 
 
 ## Initialize figure layout
-fig = Figure(resolution = (1600,720))
+fig = Figure(resolution = (1600,750))
 pa = fig[1:2,1] = GridLayout()
 pb = fig[1,2] = GridLayout()
 pc = fig[2,2] = GridLayout()
@@ -134,6 +138,15 @@ contour!(ax_a,
     levels = [clevels[findfirst(clevels .> 0)]],
     linewidth = 8,
     color = :white
+)
+
+CL = @. leftboundary(R.*1u"μm", 1u"nM", Ū*1u"μm/s", T̄*1u"ms", D̄*1u"μm^2/s", a) |> u"μM"
+lines!(ax_a, ustrip.(R), ustrip.(CL);
+    linewidth=5, linestyle=:dash, color=:orange2, alpha=0.5,
+)
+CR = @. rightboundary(R.*1u"μm", 1u"nM", Ū*1u"μm/s", T̄*1u"ms", D̄*1u"μm^2/s", a) |> u"μM"
+lines!(ax_a, ustrip.(R), ustrip.(CR);
+    linewidth=5, linestyle=:dash, color=:orange2, alpha=0.5,
 )
 
 scatter!(ax_a,
